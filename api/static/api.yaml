@@ -1,0 +1,414 @@
+openapi: 3.0.3
+info:
+  title: Bookmarks API
+  version: 1.0.0
+  description: |-
+    The Bookmarks API is a RESTful API based on OpenAPI 3.0, enabling users to create, manage, and delete bookmarks with category support. Designed for scalability, it welcomes contributions to enhance its OpenAPI definition and code.
+servers:
+  - url: http://127.0.0.1:5000/api/v1
+    
+tags:
+  - name: auth
+    description: authentication between users
+  - name: bookmarks
+    description: Operations about bookmarks
+    
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    UserRegistration:
+      type: object
+      required:
+        - username
+        - email
+        - password
+      properties:
+        username:
+          type: string
+          example: danushka
+        email:
+          type: string
+          format: email
+          example: danushka@gmail.com
+        password:
+          type: string
+          format: password
+          example: "123456"
+    LoginCredentials:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: danushka@gmail.com
+        password:
+          type: string
+          format: password
+          example: "123456"
+    Bookmark:
+      type: object
+      required:
+        - body
+        - url
+      properties:
+        id:
+          type: integer
+        body:
+          type: string
+          example: collimn
+        url:
+          type: string
+          format: uri
+          example: https://col.ruh.ac.lk/
+        short_url:
+          type: string
+        visits:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    TokenResponse:
+      type: object
+      properties:
+        user:
+          type: object
+          properties:
+            user_id:
+              type: integer
+            access:
+              type: string
+              example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+            refresh:
+              type: string
+              example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+    RefreshTokenResponse:
+      type: object
+      properties:
+        new_access_token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Error message
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - auth
+      summary: Register a new user
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistration'
+      responses:
+        '201':
+          description: User successfully registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  user_id:
+                    type: integer
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/login:
+    post:
+      tags:
+        - auth
+      summary: Generate access and refresh tokens
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginCredentials'
+      responses:
+        '201':
+          description: Successful login with tokens
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+                
+  /auth/token/refresh:
+    post:
+      tags:
+        - auth
+      summary: Refresh access token
+      operationId: refreshToken
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: New access token generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshTokenResponse'
+                
+  /auth/me:
+    get:
+      tags:
+        - auth
+      summary: Get authenticated user information
+      operationId: getUserInfo
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User information retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: object
+                    properties:
+                      username:
+                        type: string
+                      email:
+                        type: string
+        '204':
+          description: User not found
+                    
+  /bookmarks/:
+    post:
+      tags:
+        - bookmarks
+      summary: Create a new bookmark
+      operationId: createBookmark
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Bookmark'
+      responses:
+        '201':
+          description: Bookmark created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bookmark'
+        '400':
+          description: Invalid URL
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: URL already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags:
+        - bookmarks
+      summary: Get all bookmarks
+      operationId: getAllBookmarks
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: per_page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 5
+      responses:
+        '200':
+          description: List of bookmarks
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Bookmark'
+                  meta:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      pages:
+                        type: integer
+                      total_count:
+                        type: integer
+                      prev_page:
+                        type: integer
+                        nullable: true
+                      next_page:
+                        type: integer
+                        nullable: true
+                      has_next:
+                        type: boolean
+                      has_prev:
+                        type: boolean
+  
+  /bookmarks/{id}:
+    get:
+      tags:
+        - bookmarks
+      summary: Get bookmark by ID
+      operationId: getBookmarkById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Bookmark details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bookmark'
+        '404':
+          description: Bookmark not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+        - bookmarks
+      summary: Update bookmark by ID
+      operationId: updateBookmark
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Bookmark'
+      responses:
+        '200':
+          description: Bookmark updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bookmark'
+        '400':
+          description: Invalid URL
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Bookmark not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - bookmarks
+      summary: Delete bookmark by ID
+      operationId: deleteBookmark
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Bookmark deleted successfully
+        '404':
+          description: Bookmark not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /bookmarks/stats:
+    get:
+      tags:
+        - bookmarks
+      summary: Get bookmark visit statistics
+      operationId: getBookmarkStats
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Bookmark visit statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        url:
+                          type: string
+                        short_url:
+                          type: string
+                        visits:
+                          type: integer
