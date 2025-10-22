@@ -1,11 +1,142 @@
 from datetime import datetime
-from .database import db 
+from .database import db
 
+
+# ------------------- USERS -------------------
 class User(db.Model):
     __tablename__ = "users"
 
-    user_id = db.Column(db.Integer, primary_key=True)
+    u_id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.String(20), nullable=False, default="customer")
+    password = db.Column(db.String(255), nullable=False)
+    role = db.Column(db.String(20), nullable=False, default="customer")  # admin, employee, customer
+
+    # Backref to Customer
+    customer = db.relationship("Customer", backref="user", uselist=False)
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+
+# ------------------- CUSTOMERS -------------------
+class Customer(db.Model):
+    __tablename__ = "customers"
+
+    customer_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.u_id"), nullable=True)  # link to users if registered
+    name = db.Column(db.String(100), nullable=False)
+    nic = db.Column(db.String(20), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    image = db.Column(db.String(255))  # file path
+    address = db.Column(db.String(255))
+    telephone_no = db.Column(db.String(15))
+
+    # Relationships
+    bookings = db.relationship("Booking", backref="customer", lazy=True, cascade="all, delete")
+    transactions = db.relationship("Transaction", backref="customer", lazy=True, cascade="all, delete")
+    reviews = db.relationship("Review", backref="customer", lazy=True, cascade="all, delete")
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+
+# ------------------- CARS -------------------
+class Car(db.Model):
+    __tablename__ = "cars"
+
+    car_id = db.Column(db.Integer, primary_key=True)
+    license_no = db.Column(db.String(20), unique=True, nullable=False)
+    name = db.Column(db.String(100), nullable=False)  # make
+    type = db.Column(db.String(50), nullable=False)   # model
+    image = db.Column(db.String(255))
+    seats = db.Column(db.Integer, nullable=False)
+    fuel = db.Column(db.String(20), nullable=False)
+    transmission = db.Column(db.String(20), nullable=False)
+    doors = db.Column(db.Integer, nullable=False)
+    description = db.Column(db.Text)
+    features = db.Column(db.Integer)
+    price_per_day = db.Column(db.Float, nullable=False)
+    availability_status = db.Column(db.String(20), default="Available")  # Available / Unavailable
+    condition = db.Column(db.String(50), nullable=False)
+    last_service_date = db.Column(db.DateTime)
+
+    # Relationships
+    bookings = db.relationship("Booking", backref="car", lazy=True, cascade="all, delete")
+    transactions = db.relationship("Transaction", backref="car", lazy=True, cascade="all, delete")
+    services = db.relationship("Service", backref="car", lazy=True, cascade="all, delete")
+    reviews = db.relationship("Review", backref="car", lazy=True, cascade="all, delete")
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+
+# ------------------- BOOKINGS -------------------
+class Booking(db.Model):
+    __tablename__ = "bookings"
+
+    booking_id = db.Column(db.Integer, primary_key=True)
+    customer_id = db.Column(db.Integer, db.ForeignKey("customers.customer_id", ondelete="CASCADE"), nullable=False)
+    car_id = db.Column(db.Integer, db.ForeignKey("cars.car_id", ondelete="CASCADE"), nullable=False)
+    booked_at = db.Column(db.DateTime, default=datetime.now)
+    time_period = db.Column(db.Integer, nullable=False)  # in days
+    returned_at = db.Column(db.DateTime)
+    fine = db.Column(db.Float, default=0.0)
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+
+# ------------------- SERVICES -------------------
+class Service(db.Model):
+    __tablename__ = "services"
+
+    service_id = db.Column(db.Integer, primary_key=True)
+    car_id = db.Column(db.Integer, db.ForeignKey("cars.car_id", ondelete="CASCADE"), nullable=False)
+    service_date = db.Column(db.DateTime, default=datetime.now)
+    details = db.Column(db.Text, nullable=False)
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+
+# ------------------- TRANSACTIONS -------------------
+class Transaction(db.Model):
+    __tablename__ = "transactions"
+
+    transaction_id = db.Column(db.Integer, primary_key=True)
+    transaction_type = db.Column(db.String(10), nullable=False)  # "credit" or "debit"
+    date = db.Column(db.DateTime, default=datetime.now)
+    customer_id = db.Column(db.Integer, db.ForeignKey("customers.customer_id", ondelete="CASCADE"), nullable=False)
+    car_id = db.Column(db.Integer, db.ForeignKey("cars.car_id", ondelete="CASCADE"), nullable=False)
+    booking_id = db.Column(db.Integer, db.ForeignKey("bookings.booking_id", ondelete="SET NULL"), nullable=True)  # optional link to booking
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+
+# ------------------- REVIEWS -------------------
+class Review(db.Model):
+    __tablename__ = "reviews"
+
+    review_id = db.Column(db.Integer, primary_key=True)
+    customer_id = db.Column(db.Integer, db.ForeignKey("customers.customer_id", ondelete="CASCADE"), nullable=False)
+    car_id = db.Column(db.Integer, db.ForeignKey("cars.car_id", ondelete="CASCADE"), nullable=False)
+    stars = db.Column(db.Integer, nullable=False)
+    topic = db.Column(db.String(100))
+    description = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.now)
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+class Token(db.Model):
+    __tablename__ = "TokenBlockList"
+
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    jti = db.Column(db.String(255), nullable=False)
+    user_id = db.Column(db.Integer, nullable=False)
+    revoked_at = db.Column(db.DateTime, default=datetime.now)
+    expires = db.Column(db.DateTime, default=datetime.now)
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}

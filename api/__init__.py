@@ -6,11 +6,18 @@ from flask_swagger_ui import get_swaggerui_blueprint
 from flask_cors import CORS
 from .utils.http_status_codes import *
 from .models import User
+from .services.auth import auth_bp
+from .routes.cars import car_bp
 
 def create_app():
     app = Flask(__name__)
-    CORS(app)
-
+    CORS(
+   app, 
+   # origins="http://localhost:5174",
+   supports_credentials=True,
+   # allow_headers=["Content-Type", "Authorization", "X-CSRF-TOKEN"]
+   
+)
     app.config.from_object(Config)
 
     db.init_app(app)
@@ -32,6 +39,8 @@ def create_app():
    )
     
     app.register_blueprint(swaggerui_blueprint)
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(car_bp)
 
     
     @app.errorhandler(HTTP_404_NOT_FOUND)
