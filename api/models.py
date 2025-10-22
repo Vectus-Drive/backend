@@ -6,7 +6,7 @@ from .database import db
 class User(db.Model):
     __tablename__ = "users"
 
-    u_id = db.Column(db.Integer, primary_key=True)
+    u_id = db.Column(db.String, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     role = db.Column(db.String(20), nullable=False, default="customer")  # admin, employee, customer
@@ -22,8 +22,8 @@ class User(db.Model):
 class Customer(db.Model):
     __tablename__ = "customers"
 
-    customer_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.u_id"), nullable=True)  # link to users if registered
+    customer_id = db.Column(db.String, primary_key=True)
+    user_id = db.Column(db.String, db.ForeignKey("users.u_id"), nullable=True)  # link to users if registered
     name = db.Column(db.String(100), nullable=False)
     nic = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -44,7 +44,7 @@ class Customer(db.Model):
 class Car(db.Model):
     __tablename__ = "cars"
 
-    car_id = db.Column(db.Integer, primary_key=True)
+    car_id = db.Column(db.String, primary_key=True)
     license_no = db.Column(db.String(20), unique=True, nullable=False)
     name = db.Column(db.String(100), nullable=False)  # make
     type = db.Column(db.String(50), nullable=False)   # model
@@ -74,8 +74,8 @@ class Car(db.Model):
 class Booking(db.Model):
     __tablename__ = "bookings"
 
-    booking_id = db.Column(db.Integer, primary_key=True)
-    customer_id = db.Column(db.Integer, db.ForeignKey("customers.customer_id", ondelete="CASCADE"), nullable=False)
+    booking_id = db.Column(db.String, primary_key=True)
+    customer_id = db.Column(db.String, db.ForeignKey("customers.customer_id", ondelete="CASCADE"), nullable=False)
     car_id = db.Column(db.Integer, db.ForeignKey("cars.car_id", ondelete="CASCADE"), nullable=False)
     booked_at = db.Column(db.DateTime, default=datetime.now)
     time_period = db.Column(db.Integer, nullable=False)  # in days
@@ -90,8 +90,8 @@ class Booking(db.Model):
 class Service(db.Model):
     __tablename__ = "services"
 
-    service_id = db.Column(db.Integer, primary_key=True)
-    car_id = db.Column(db.Integer, db.ForeignKey("cars.car_id", ondelete="CASCADE"), nullable=False)
+    service_id = db.Column(db.String, primary_key=True)
+    car_id = db.Column(db.String, db.ForeignKey("cars.car_id", ondelete="CASCADE"), nullable=False)
     service_date = db.Column(db.DateTime, default=datetime.now)
     details = db.Column(db.Text, nullable=False)
 
@@ -103,12 +103,12 @@ class Service(db.Model):
 class Transaction(db.Model):
     __tablename__ = "transactions"
 
-    transaction_id = db.Column(db.Integer, primary_key=True)
+    transaction_id = db.Column(db.String, primary_key=True)
     transaction_type = db.Column(db.String(10), nullable=False)  # "credit" or "debit"
     date = db.Column(db.DateTime, default=datetime.now)
-    customer_id = db.Column(db.Integer, db.ForeignKey("customers.customer_id", ondelete="CASCADE"), nullable=False)
-    car_id = db.Column(db.Integer, db.ForeignKey("cars.car_id", ondelete="CASCADE"), nullable=False)
-    booking_id = db.Column(db.Integer, db.ForeignKey("bookings.booking_id", ondelete="SET NULL"), nullable=True)  # optional link to booking
+    customer_id = db.Column(db.String, db.ForeignKey("customers.customer_id", ondelete="CASCADE"), nullable=False)
+    car_id = db.Column(db.String, db.ForeignKey("cars.car_id", ondelete="CASCADE"), nullable=False)
+    booking_id = db.Column(db.String, db.ForeignKey("bookings.booking_id", ondelete="SET NULL"), nullable=True)  # optional link to booking
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -118,8 +118,8 @@ class Transaction(db.Model):
 class Review(db.Model):
     __tablename__ = "reviews"
 
-    review_id = db.Column(db.Integer, primary_key=True)
-    customer_id = db.Column(db.Integer, db.ForeignKey("customers.customer_id", ondelete="CASCADE"), nullable=False)
+    review_id = db.Column(db.String, primary_key=True)
+    customer_id = db.Column(db.String, db.ForeignKey("customers.customer_id", ondelete="CASCADE"), nullable=False)
     car_id = db.Column(db.Integer, db.ForeignKey("cars.car_id", ondelete="CASCADE"), nullable=False)
     stars = db.Column(db.Integer, nullable=False)
     topic = db.Column(db.String(100))

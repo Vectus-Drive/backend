@@ -2,10 +2,14 @@ from flask import Blueprint, request, make_response
 from ..database import db
 from ..models import User
 from flask_jwt_extended import create_access_token, create_refresh_token, JWTManager, jwt_required, get_jwt_identity, get_jwt, set_access_cookies, set_refresh_cookies
-from ..utils.helpers import add_token_to_database, is_token_revoked, revoke_token
+from ..utils.helpers import generate_user_id, add_token_to_database, is_token_revoked, revoke_token
 from ..utils.http_status_codes import *
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/api/v1/auth")
+
+@auth_bp.post("/register")
+def register_user():
+    pass
 
 @auth_bp.post("/login")
 def login_user():

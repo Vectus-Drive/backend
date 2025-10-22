@@ -1,3 +1,4 @@
+import random, string
 from datetime import datetime
 from flask_jwt_extended import decode_token
 from ..models import Token
@@ -52,3 +53,35 @@ def is_token_revoked(jwt_payload):
         raise Exception(f"Could not find token {token_jti}")
 
     return token.revoked_at is not None
+
+
+alphabet = string.ascii_uppercase
+numbers = [str(i) for i in range(10)]
+
+def generate_id(size=10):
+    id = ""
+    for i in range(size):
+        rand_num = random.randint(0, 25);
+        id += alphabet[rand_num]
+        if rand_num % 2 == 0:
+            id += random.choice(numbers)
+        else:
+            rand_num = random.randint(0, 25);
+            id += alphabet[rand_num]
+    return id
+
+def generate_car_id():
+    return "CAR_" + generate_id(10)
+
+def generate_user_id():
+    return "USER_" + generate_id(8)
+
+def generate_transaction_id():
+    return "TRS_" + generate_id(8)
+
+def generate_booking_id():
+    return "BK_" + generate_id(8)
+
+def generate_review_id():
+    return "REV_" + generate_id(8)
+
