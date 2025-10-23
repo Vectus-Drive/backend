@@ -3,7 +3,7 @@ from datetime import datetime
 from flask_jwt_extended import decode_token
 from ..models import Token
 from ..database import db
-
+from bcrypt import hashpw, checkpw
 
 def add_token_to_database(token):
     """
@@ -12,7 +12,7 @@ def add_token_to_database(token):
     decoded_token = decode_token(token)
 
     jti = decoded_token['jti']
-    user_id = int(decoded_token['sub'])
+    user_id = decoded_token['sub']
     expires = datetime.fromtimestamp(decoded_token['exp'])
 
     db_token = Token(
@@ -39,14 +39,11 @@ def revoke_token(token_jti, user_id):
     db.session.commit()
 
 
-def is_token_revoked(jwt_payload):
+def is_token_revoked(token_jti, user_id):
     """
     Check if a token is revoked.
     Returns True if revoked, False otherwise.
     """
-    token_jti = jwt_payload['jti']
-    user_id = jwt_payload['sub']
-
     token = Token.query.filter_by(jti=token_jti, user_id=user_id).first()
 
     if not token:
@@ -85,3 +82,16 @@ def generate_booking_id():
 def generate_review_id():
     return "REV_" + generate_id(8)
 
+
+import bcrypt
+
+def hash_password(plain_password):
+    hashed = hashpw(plain_password.encode("utf-8"), bcrypt.gensalt())
+    return hashed.decode("utf-8")
+
+
+def verify_password(plain_password, hashed_password):
+    return checkpw(
+        plain_password.encode("utf-8"),
+        hashed_password.encode("utf-8")
+    )

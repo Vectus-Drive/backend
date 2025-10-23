@@ -1,43 +1,74 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 from typing import Optional
 from datetime import datetime
+from enum import Enum
 
+class Role(Enum):
+    CUSTOMER = "CUSTOMER"
+    EMPLOYEE = "EMPLOYEE"
+    ADMIN = "ADMIN"
+    
+class Transaction(Enum):
+    CREDIT = "CREDIT"
+    DEBIT = "DEBIT" 
 
 # ------------------- USER SCHEMAS -------------------
 class UserBase(BaseModel):
-    u_id: str
-    username: str
-    password: str
-    role: Optional[str] = "customer"
 
+    model_config = ConfigDict(from_attributes=True) 
 
-class UserCreate(UserBase):
-    pass
-
-class UserResponse(UserBase):
-    class Config:
-        orm_mode = True
-
-
-# ------------------- CUSTOMER SCHEMAS -------------------
-class CustomerBase(BaseModel):
-    customer_id: str
     name: str
+    username: str
     nic: str
     email: EmailStr
     image: Optional[str] = None
     address: Optional[str] = None
     telephone_no: Optional[str] = None
-    user_id: Optional[int] = None
+    role: Role
 
+class UserCreate(UserBase):
+    password: str
 
-class CustomerCreate(CustomerBase):
-    pass
-
-
-class CustomerResponse(CustomerBase):
+class UserResponse(UserBase):
+    user_id: str
     class Config:
-        orm_mode = True
+        form_attributes = True
+
+# # ------------------- USER SCHEMAS -------------------
+# class UserBase(BaseModel):
+#     username: str
+#     role: Optional[str] = "customer"
+
+
+# class UserCreate(UserBase):
+#     password: str
+#     pass
+
+# class UserResponse(UserBase):
+#     u_id: str
+#     class Config:
+#         form_attributes = True
+
+
+# ------------------- CUSTOMER SCHEMAS -------------------
+# class CustomerBase(BaseModel):
+#     name: str
+#     nic: str
+#     email: EmailStr
+#     image: Optional[str] = None
+#     address: Optional[str] = None
+#     telephone_no: Optional[str] = None
+#     role: str
+
+
+# class CustomerCreate(CustomerBase):
+
+#     pass
+
+# class CustomerResponse(CustomerBase):
+#     customer_id: str
+#     class Config:
+#         form_attributes = True
 
 
 # # ------------------- CAR SCHEMAS -------------------
@@ -66,7 +97,7 @@ class CustomerResponse(CustomerBase):
 #     car_id: int
 
 #     class Config:
-#         orm_mode = True
+#         form_attributes = True
 
 
 # # ------------------- BOOKING SCHEMAS -------------------
@@ -87,7 +118,7 @@ class CustomerResponse(CustomerBase):
 #     returned_at: Optional[datetime] = None
 
 #     class Config:
-#         orm_mode = True
+#         form_attributes = True
 
 
 # # ------------------- SERVICE SCHEMAS -------------------
@@ -105,7 +136,7 @@ class CustomerResponse(CustomerBase):
 #     service_date: datetime
 
 #     class Config:
-#         orm_mode = True
+#         form_attributes = True
 
 
 # # ------------------- TRANSACTION SCHEMAS -------------------
@@ -125,7 +156,7 @@ class CustomerResponse(CustomerBase):
 #     date: datetime
 
 #     class Config:
-#         orm_mode = True
+#         form_attributes = True
 
 
 # # ------------------- REVIEW SCHEMAS -------------------
@@ -146,7 +177,7 @@ class CustomerResponse(CustomerBase):
 #     created_at: datetime
 
 #     class Config:
-#         orm_mode = True
+#         form_attributes = True
 
 
 # # ------------------- TOKEN SCHEMAS -------------------
@@ -165,4 +196,4 @@ class CustomerResponse(CustomerBase):
 #     revoked_at: Optional[datetime]
 
 #     class Config:
-#         orm_mode = True
+#         form_attributes = True

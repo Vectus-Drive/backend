@@ -1,18 +1,17 @@
 from datetime import datetime
 from .database import db
 
-
 # ------------------- USERS -------------------
 class User(db.Model):
     __tablename__ = "users"
 
-    u_id = db.Column(db.String, primary_key=True)
+    u_id = db.Column(db.String(36), primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.String(20), nullable=False, default="customer")  # admin, employee, customer
+    role = db.Column(db.String(20), nullable=False, default="CUSTOMER")  # admin, employee, customer
 
-    # Backref to Customer
-    customer = db.relationship("Customer", backref="user", uselist=False)
+    customer = db.relationship("Customer", backref="user", uselist=False, cascade="all, delete")
+    employee = db.relationship("Employee", backref="user", uselist=False, cascade="all, delete")
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -22,19 +21,32 @@ class User(db.Model):
 class Customer(db.Model):
     __tablename__ = "customers"
 
-    customer_id = db.Column(db.String, primary_key=True)
-    user_id = db.Column(db.String, db.ForeignKey("users.u_id"), nullable=True)  # link to users if registered
+    customer_id = db.Column(db.String(36), db.ForeignKey("users.u_id", ondelete="CASCADE"), primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     nic = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    image = db.Column(db.String(255))  # file path
+    image = db.Column(db.String(255))
     address = db.Column(db.String(255))
     telephone_no = db.Column(db.String(15))
 
-    # Relationships
     bookings = db.relationship("Booking", backref="customer", lazy=True, cascade="all, delete")
     transactions = db.relationship("Transaction", backref="customer", lazy=True, cascade="all, delete")
     reviews = db.relationship("Review", backref="customer", lazy=True, cascade="all, delete")
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+    
+# ------------------- EMPLOYEES -------------------
+class Employee(db.Model):
+    __tablename__ = "employees"
+
+    employee_id = db.Column(db.String(36), db.ForeignKey("users.u_id", ondelete="CASCADE"), primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    nic = db.Column(db.String(20), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    image = db.Column(db.String(255))
+    address = db.Column(db.String(255))
+    telephone_no = db.Column(db.String(15))
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -44,10 +56,10 @@ class Customer(db.Model):
 class Car(db.Model):
     __tablename__ = "cars"
 
-    car_id = db.Column(db.String, primary_key=True)
+    car_id = db.Column(db.String(36), primary_key=True)
     license_no = db.Column(db.String(20), unique=True, nullable=False)
-    name = db.Column(db.String(100), nullable=False)  # make
-    type = db.Column(db.String(50), nullable=False)   # model
+    name = db.Column(db.String(100), nullable=False)
+    type = db.Column(db.String(50), nullable=False)
     image = db.Column(db.String(255))
     seats = db.Column(db.Integer, nullable=False)
     fuel = db.Column(db.String(20), nullable=False)
@@ -56,11 +68,10 @@ class Car(db.Model):
     description = db.Column(db.Text)
     features = db.Column(db.Integer)
     price_per_day = db.Column(db.Float, nullable=False)
-    availability_status = db.Column(db.String(20), default="Available")  # Available / Unavailable
+    availability_status = db.Column(db.Boolean, default=True)
     condition = db.Column(db.String(50), nullable=False)
     last_service_date = db.Column(db.DateTime)
 
-    # Relationships
     bookings = db.relationship("Booking", backref="car", lazy=True, cascade="all, delete")
     transactions = db.relationship("Transaction", backref="car", lazy=True, cascade="all, delete")
     services = db.relationship("Service", backref="car", lazy=True, cascade="all, delete")
@@ -74,11 +85,11 @@ class Car(db.Model):
 class Booking(db.Model):
     __tablename__ = "bookings"
 
-    booking_id = db.Column(db.String, primary_key=True)
-    customer_id = db.Column(db.String, db.ForeignKey("customers.customer_id", ondelete="CASCADE"), nullable=False)
-    car_id = db.Column(db.Integer, db.ForeignKey("cars.car_id", ondelete="CASCADE"), nullable=False)
+    booking_id = db.Column(db.String(36), primary_key=True)
+    customer_id = db.Column(db.String(36), db.ForeignKey("customers.customer_id", ondelete="CASCADE"), nullable=False)
+    car_id = db.Column(db.String(36), db.ForeignKey("cars.car_id", ondelete="CASCADE"), nullable=False)
     booked_at = db.Column(db.DateTime, default=datetime.now)
-    time_period = db.Column(db.Integer, nullable=False)  # in days
+    time_period = db.Column(db.Integer, nullable=False)
     returned_at = db.Column(db.DateTime)
     fine = db.Column(db.Float, default=0.0)
 
@@ -90,8 +101,8 @@ class Booking(db.Model):
 class Service(db.Model):
     __tablename__ = "services"
 
-    service_id = db.Column(db.String, primary_key=True)
-    car_id = db.Column(db.String, db.ForeignKey("cars.car_id", ondelete="CASCADE"), nullable=False)
+    service_id = db.Column(db.String(36), primary_key=True)
+    car_id = db.Column(db.String(36), db.ForeignKey("cars.car_id", ondelete="CASCADE"), nullable=False)
     service_date = db.Column(db.DateTime, default=datetime.now)
     details = db.Column(db.Text, nullable=False)
 
@@ -103,12 +114,12 @@ class Service(db.Model):
 class Transaction(db.Model):
     __tablename__ = "transactions"
 
-    transaction_id = db.Column(db.String, primary_key=True)
-    transaction_type = db.Column(db.String(10), nullable=False)  # "credit" or "debit"
+    transaction_id = db.Column(db.String(36), primary_key=True)
+    transaction_type = db.Column(db.String(10), nullable=False, default="CREDIT")  # "credit" / "debit"
     date = db.Column(db.DateTime, default=datetime.now)
-    customer_id = db.Column(db.String, db.ForeignKey("customers.customer_id", ondelete="CASCADE"), nullable=False)
-    car_id = db.Column(db.String, db.ForeignKey("cars.car_id", ondelete="CASCADE"), nullable=False)
-    booking_id = db.Column(db.String, db.ForeignKey("bookings.booking_id", ondelete="SET NULL"), nullable=True)  # optional link to booking
+    customer_id = db.Column(db.String(36), db.ForeignKey("customers.customer_id", ondelete="CASCADE"), nullable=False)
+    car_id = db.Column(db.String(36), db.ForeignKey("cars.car_id", ondelete="CASCADE"), nullable=False)
+    booking_id = db.Column(db.String(36), db.ForeignKey("bookings.booking_id", ondelete="SET NULL"), nullable=True)
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -118,9 +129,9 @@ class Transaction(db.Model):
 class Review(db.Model):
     __tablename__ = "reviews"
 
-    review_id = db.Column(db.String, primary_key=True)
-    customer_id = db.Column(db.String, db.ForeignKey("customers.customer_id", ondelete="CASCADE"), nullable=False)
-    car_id = db.Column(db.Integer, db.ForeignKey("cars.car_id", ondelete="CASCADE"), nullable=False)
+    review_id = db.Column(db.String(36), primary_key=True)
+    customer_id = db.Column(db.String(36), db.ForeignKey("customers.customer_id", ondelete="CASCADE"), nullable=False)
+    car_id = db.Column(db.String(36), db.ForeignKey("cars.car_id", ondelete="CASCADE"), nullable=False)
     stars = db.Column(db.Integer, nullable=False)
     topic = db.Column(db.String(100))
     description = db.Column(db.Text)
@@ -129,13 +140,15 @@ class Review(db.Model):
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
+
+# ------------------- TOKEN BLOCK LIST -------------------
 class Token(db.Model):
-    __tablename__ = "TokenBlockList"
+    __tablename__ = "token_blocklist"
 
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     jti = db.Column(db.String(255), nullable=False)
-    user_id = db.Column(db.Integer, nullable=False)
-    revoked_at = db.Column(db.DateTime, default=datetime.now)
+    user_id = db.Column(db.String(36), nullable=False)
+    revoked_at = db.Column(db.DateTime, nullable=True)
     expires = db.Column(db.DateTime, default=datetime.now)
 
     def as_dict(self):

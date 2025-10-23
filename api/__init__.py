@@ -5,14 +5,15 @@ from flask_jwt_extended import JWTManager
 from flask_swagger_ui import get_swaggerui_blueprint
 from flask_cors import CORS
 from .utils.http_status_codes import *
-from .models import User, Booking, Car, Customer, Review,  Token, Transaction, Service
+# from .models import User, Booking, Car, Customer, Review,  Token, Transaction, Service
 from .services.auth import auth_bp
 from .routes.cars import car_bp
-from .routes.customers import car_bp
+from .routes.customers import customer_bp
 from .routes.reviews import review_bp
 from .routes.bookings import booking_bp
 from .routes.transactions import transaction_bp
 from .routes.services import service_bp
+from .routes.employees import employee_bp
 
 def create_app():
     app = Flask(__name__)
@@ -50,6 +51,8 @@ def create_app():
     app.register_blueprint(review_bp)
     app.register_blueprint(service_bp)
     app.register_blueprint(booking_bp)
+    app.register_blueprint(customer_bp)
+    app.register_blueprint(employee_bp)
 
     
     @app.errorhandler(HTTP_404_NOT_FOUND)
