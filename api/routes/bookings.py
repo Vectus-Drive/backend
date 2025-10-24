@@ -3,6 +3,9 @@ from ..database import db
 from ..models import Booking
 from flask_jwt_extended import jwt_required
 from ..utils.http_status_codes import *
+from ..schemas import BookingCreate
+from pydantic import ValidationError
+
 
 booking_bp = Blueprint("booking", __name__, url_prefix="/api/v1/bookings")
 

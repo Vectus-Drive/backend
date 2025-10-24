@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, ConfigDict
-from typing import Optional
+from typing import Optional, Literal
 from datetime import datetime
 from enum import Enum
 
@@ -21,18 +21,16 @@ class UserBase(BaseModel):
     username: str
     nic: str
     email: EmailStr
-    image: Optional[str] = None
-    address: Optional[str] = None
-    telephone_no: Optional[str] = None
-    role: Role
+    address: Optional[str]
+    telephone_no: Optional[str]
+    role: Literal["customer", "employee"] = "customer"
 
 class UserCreate(UserBase):
     password: str
+    image: Optional[str]
 
 class UserResponse(UserBase):
     user_id: str
-    class Config:
-        form_attributes = True
 
 # # ------------------- USER SCHEMAS -------------------
 # class UserBase(BaseModel):
@@ -51,75 +49,79 @@ class UserResponse(UserBase):
 
 
 # ------------------- CUSTOMER SCHEMAS -------------------
-# class CustomerBase(BaseModel):
-#     name: str
-#     nic: str
-#     email: EmailStr
-#     image: Optional[str] = None
-#     address: Optional[str] = None
-#     telephone_no: Optional[str] = None
-#     role: str
+class CustomerBase(BaseModel):
+    name: str
+    nic: str
+    email: EmailStr
+    image: Optional[str] = None
+    address: Optional[str] = None
+    telephone_no: Optional[str] = None
 
+class CustomerCreate(CustomerBase):
+    image: Optional[str]
+    pass
 
-# class CustomerCreate(CustomerBase):
+class CustomerResponse(CustomerBase):
+    customer_id: str
 
-#     pass
+# ------------------- EMPLOYEE SCHEMAS -------------------
+class EmployeeBase(BaseModel):
+    name: str
+    nic: str
+    email: EmailStr
+    image: Optional[str] = None
+    address: Optional[str] = None
+    telephone_no: Optional[str] = None
 
-# class CustomerResponse(CustomerBase):
-#     customer_id: str
-#     class Config:
-#         form_attributes = True
+class EmployeeCreate(CustomerBase):
+    image: Optional[str]
+    pass
+
+class EmployeeResponse(CustomerBase):
+    customer_id: str
 
 
 # # ------------------- CAR SCHEMAS -------------------
-# class CarBase(BaseModel):
-#     license_no: str
-#     name: str
-#     type: str
-#     seats: int
-#     fuel: str
-#     transmission: str
-#     doors: int
-#     description: Optional[str] = None
-#     features: Optional[int] = None
-#     price_per_day: float
-#     availability_status: Optional[str] = "Available"
-#     condition: str
-#     image: Optional[str] = None
-#     last_service_date: Optional[datetime] = None
+class CarBase(BaseModel):
+    license_no: str
+    name: str
+    type: str
+    seats: int
+    fuel: str
+    transmission: str
+    doors: int
+    description: Optional[str] = None
+    features: Optional[int] = None
+    price_per_day: float
+    availability_status: Optional[str] = "Available"
+    condition: str
+    image: Optional[str] = None
+    last_service_date: Optional[datetime] = None
 
 
-# class CarCreate(CarBase):
-#     pass
+class CarCreate(CarBase):
+    pass
 
 
-# class CarResponse(CarBase):
-#     car_id: int
+class CarResponse(CarBase):
+    car_id: str
 
-#     class Config:
-#         form_attributes = True
-
-
-# # ------------------- BOOKING SCHEMAS -------------------
-# class BookingBase(BaseModel):
-#     customer_id: int
-#     car_id: int
-#     time_period: int
-#     fine: Optional[float] = 0.0
+# ------------------- BOOKING SCHEMAS -------------------
+class BookingBase(BaseModel):
+    customer_id: int
+    car_id: int
+    time_period: int
+    fine: Optional[float] = 0.0
 
 
-# class BookingCreate(BookingBase):
-#     pass
+class BookingCreate(BookingBase):
+    pass
 
 
-# class BookingResponse(BookingBase):
-#     booking_id: int
-#     booked_at: datetime
-#     returned_at: Optional[datetime] = None
-
-#     class Config:
-#         form_attributes = True
-
+class BookingResponse(BookingBase):
+    booking_id: int
+    booked_at: datetime
+    returned_at: Optional[datetime] = None
 
 # # ------------------- SERVICE SCHEMAS -------------------
 # class ServiceBase(BaseModel):

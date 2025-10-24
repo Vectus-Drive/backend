@@ -4,6 +4,9 @@ from flask_jwt_extended import decode_token
 from ..models import Token
 from ..database import db
 from bcrypt import hashpw, checkpw
+from functools import wraps
+from flask import jsonify
+from pydantic import ValidationError
 
 def add_token_to_database(token):
     """
@@ -95,3 +98,46 @@ def verify_password(plain_password, hashed_password):
         plain_password.encode("utf-8"),
         hashed_password.encode("utf-8")
     )
+
+# utils/response_validator.py
+
+def validate_response(model):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            response, status_code = func(*args, **kwargs)
+
+            try:
+                model.parse_obj(response)
+            except ValidationError as e:
+                # Log validation error and return a 500 error
+                return jsonify({
+                    "status": "error",
+                    "message": "Response validation failed",
+                    "details": e.errors()
+                }), 500
+
+            return jsonify(response), status_code
+        return wrapper
+    return decorator
+
+def validate_request(model):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            request, status_code = func(*args, **kwargs)
+
+            try:
+                model.parse_obj(request)
+            except ValidationError as e:
+                # Log validation error and return a 500 error
+                return jsonify({
+                    "status": "error",
+                    "message": "Response validation failed",
+                    "details": e.errors()
+                }), 500
+
+            return jsonify(request), status_code
+        return wrapper
+    return decorator
+
