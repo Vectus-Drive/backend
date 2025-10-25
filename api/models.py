@@ -10,6 +10,7 @@ class User(db.Model):
     password = db.Column(db.String(255), nullable=False)
     role = db.Column(db.String(20), nullable=False, default="customer")  # admin, employee, customer
 
+    # uselist=False makes sure that there will be only one to one relationship
     customer = db.relationship("Customer", backref="user", uselist=False, cascade="all, delete")
     employee = db.relationship("Employee", backref="user", uselist=False, cascade="all, delete")
 
@@ -58,19 +59,18 @@ class Car(db.Model):
 
     car_id = db.Column(db.String(36), primary_key=True)
     license_no = db.Column(db.String(20), unique=True, nullable=False)
-    name = db.Column(db.String(100), nullable=False)
-    type = db.Column(db.String(50), nullable=False)
+    make = db.Column(db.String(100), nullable=False)
+    model = db.Column(db.String(50), nullable=False)
     image = db.Column(db.String(255))
     seats = db.Column(db.Integer, nullable=False)
     fuel = db.Column(db.String(20), nullable=False)
-    transmission = db.Column(db.String(20), nullable=False)
+    transmission = db.Column(db.String(20), nullable=False, default="automatic")
+    features = db.Column(db.JSON)
     doors = db.Column(db.Integer, nullable=False)
     description = db.Column(db.Text)
-    features = db.Column(db.Integer)
     price_per_day = db.Column(db.Float, nullable=False)
     availability_status = db.Column(db.Boolean, default=True)
     condition = db.Column(db.String(50), nullable=False)
-    last_service_date = db.Column(db.DateTime)
 
     bookings = db.relationship("Booking", backref="car", lazy=True, cascade="all, delete")
     transactions = db.relationship("Transaction", backref="car", lazy=True, cascade="all, delete")
@@ -79,6 +79,9 @@ class Car(db.Model):
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+    
+
+# ------------------- Features -------------------
 
 
 # ------------------- BOOKINGS -------------------
@@ -103,6 +106,7 @@ class Service(db.Model):
 
     service_id = db.Column(db.String(36), primary_key=True)
     car_id = db.Column(db.String(36), db.ForeignKey("cars.car_id", ondelete="CASCADE"), nullable=False)
+    transaction_amount = db.Column(db.Float, nullable=False)
     service_date = db.Column(db.DateTime, default=datetime.now)
     details = db.Column(db.Text, nullable=False)
 
@@ -115,7 +119,7 @@ class Transaction(db.Model):
     __tablename__ = "transactions"
 
     transaction_id = db.Column(db.String(36), primary_key=True)
-    transaction_type = db.Column(db.String(10), nullable=False, default="CREDIT")  # "credit" / "debit"
+    transaction_amount = db.Column(db.Float, nullable=False)
     date = db.Column(db.DateTime, default=datetime.now)
     customer_id = db.Column(db.String(36), db.ForeignKey("customers.customer_id", ondelete="CASCADE"), nullable=False)
     car_id = db.Column(db.String(36), db.ForeignKey("cars.car_id", ondelete="CASCADE"), nullable=False)

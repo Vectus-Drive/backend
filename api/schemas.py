@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, ConfigDict
-from typing import Optional, Literal, Union, List
+from typing import Optional, Literal, Union, List, Dict, Any
 from datetime import datetime
 from enum import Enum
 
@@ -52,7 +52,6 @@ class CustomerBase(BaseModel):
 class CustomerCreate(CustomerBase):
     pass
 
-
 class CustomerData(CustomerBase):
     user: UserData
 
@@ -86,6 +85,7 @@ class EmployeeResponse(Response):
 # # ------------------- SERVICE SCHEMAS -------------------
 class ServiceBase(BaseModel):
     details: str
+    transaction_amount: float
 
 class ServiceCreate(ServiceBase):
     car_id: str
@@ -163,27 +163,35 @@ class ServiceResponse(Response):
 # # ------------------- CAR SCHEMAS -------------------
 class CarBase(BaseModel):
     license_no: str
-    name: str
-    type: str
+    make: str
+    model: str
     seats: int
     fuel: str
-    transmission: str
+    transmission: Literal["automatic", "manual"] = "automatic"
     doors: int
-    description: Optional[str] = None
-    features: Optional[int] = None
+    description: str
+    features: List[str]
     price_per_day: float
-    availability_status: Optional[str] = "Available"
+    availability_status: bool
     condition: str
     image: Optional[str] = None
-    last_service_date: Optional[datetime] = None
-
 
 class CarCreate(CarBase):
     pass
 
-
-class CarResponse(CarBase):
+class CarData(CarBase):
     car_id: str
+    services: ServiceData | List[ServiceData] | None
+
+class CarCreateResponse(BaseModel):
+    car_id: str
+    license_no: str
+    make: str
+    model: str
+
+class CarResponse(Response):
+    data: CarCreateResponse | CarData | List[CarData] | None | str
+
 
 
 # ------------------- BOOKING SCHEMAS -------------------
