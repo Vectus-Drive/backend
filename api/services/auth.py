@@ -1,8 +1,25 @@
 from flask import Blueprint, request, make_response
 from ..database import db
 from ..models import User, Customer, Employee
-from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity, get_jwt, set_access_cookies, set_refresh_cookies
-from ..utils.helpers import generate_user_id, add_token_to_database, hash_password, verify_password, is_token_revoked, revoke_token, validate_request, validate_response
+from flask_jwt_extended import (
+    create_access_token,
+    create_refresh_token,
+    jwt_required,
+    get_jwt_identity,
+    get_jwt,
+    set_access_cookies,
+    set_refresh_cookies,
+)
+from ..utils.helpers import (
+    generate_user_id,
+    add_token_to_database,
+    hash_password,
+    verify_password,
+    is_token_revoked,
+    revoke_token,
+    validate_request,
+    validate_response,
+)
 from ..utils.http_status_codes import *
 from pydantic import ValidationError
 from ..schemas import UserCreate, UserResponse
@@ -20,12 +37,12 @@ def register_user():
 
     # Check if user already exists
     user_ = db.session.query(User).filter_by(username=username).first()
-    
+
     if user_:
         return {
             "status": "error",
             "message": "User already registered",
-            "data": None
+            "data": None,
         }, HTTP_403_FORBIDDEN
 
     user_id = generate_user_id()
@@ -57,20 +74,15 @@ def register_user():
         return {
             "status": "error",
             "message": "Internal server error",
-            "data": str(e)
+            "data": str(e),
         }, HTTP_500_INTERNAL_SERVER_ERROR
 
-
-    resp_data = {
-        "user_id": user_id,
-        "username": data["username"],
-        "role": role
-    }
+    resp_data = {"u_id": user_id, "username": data["username"], "role": role}
 
     return {
         "status": "success",
         "message": "User created successfully",
-        "data": resp_data
+        "data": resp_data,
     }, HTTP_201_CREATED
 
 
@@ -83,7 +95,7 @@ def login_user():
         return {
             "status": "error",
             "message": "Username and password are required",
-            "data": None
+            "data": None,
         }, HTTP_400_BAD_REQUEST
 
     user_ = db.session.query(User).filter_by(username=username).first()
@@ -91,20 +103,22 @@ def login_user():
         return {
             "status": "error",
             "message": "User is not registered",
-            "data": None
+            "data": None,
         }, HTTP_403_FORBIDDEN
 
     if verify_password(password, user_.password):
-        access_token = create_access_token(identity=str(user_.u_id), additional_claims={"role": user_.role})
-        refresh_token = create_refresh_token(identity=str(user_.u_id), additional_claims={"role": user_.role})
+        access_token = create_access_token(
+            identity=str(user_.u_id), additional_claims={"role": user_.role}
+        )
+        refresh_token = create_refresh_token(
+            identity=str(user_.u_id), additional_claims={"role": user_.role}
+        )
 
         add_token_to_database(refresh_token)
 
-        resp = make_response({
-            "status": "success",
-            "message": "Login successful",
-            "data": None
-        })
+        resp = make_response(
+            {"status": "success", "message": "Login successful", "data": None}
+        )
         set_access_cookies(resp, access_token)
         set_refresh_cookies(resp, refresh_token)
         return resp, HTTP_200_OK
@@ -112,7 +126,7 @@ def login_user():
     return {
         "status": "error",
         "message": "Login failed",
-        "data": None
+        "data": None,
     }, HTTP_401_UNAUTHORIZED
 
 
@@ -124,10 +138,7 @@ def me():
     return {
         "status": "success",
         "message": "User info retrieved successfully",
-        "data": {
-            "id": id,
-            "role": role
-        }
+        "data": {"id": id, "role": role},
     }, HTTP_200_OK
 
 
@@ -143,22 +154,50 @@ def refresh_user_token():
         return {
             "status": "error",
             "message": "Refresh token has been revoked",
-            "data": None
+            "data": None,
         }, HTTP_401_UNAUTHORIZED
 
     revoke_token(jti, user_id)
 
-    new_access_token = create_access_token(identity=str(user_id), additional_claims={"role": role})
-    new_refresh_token = create_refresh_token(identity=str(user_id), additional_claims={"role": role})
+    new_access_token = create_access_token(
+        identity=str(user_id), additional_claims={"role": role}
+    )
+    new_refresh_token = create_refresh_token(
+        identity=str(user_id), additional_claims={"role": role}
+    )
 
     add_token_to_database(new_refresh_token)
 
-    resp = make_response({
-        "status": "success",
-        "message": "Token refresh successful",
-        "data": None
-    })
+    resp = make_response(
+        {"status": "success", "message": "Token refresh successful", "data": None}
+    )
     set_access_cookies(resp, new_access_token)
     set_refresh_cookies(resp, new_refresh_token)
 
     return resp, HTTP_201_CREATED
+
+
+@auth_bp.delete("/delete/<id>")
+@jwt_required()
+def delete_user(id):
+    user = db.session.query(User).filter_by(u_id=id).first()
+    if not user:
+        return {
+            "status": "error",
+            "message": "User not found",
+            "data": None,
+        }, HTTP_404_NOT_FOUND
+
+    db.session.delete(user)
+
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return {
+            "status": "error",
+            "message": "Internal server error",
+            "data": str(e),
+        }, HTTP_500_INTERNAL_SERVER_ERROR
+
+    return {}, HTTP_204_NO_CONTENT

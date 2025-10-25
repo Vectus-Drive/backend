@@ -86,6 +86,9 @@ def generate_booking_id():
 def generate_review_id():
     return "REV_" + generate_id(8)
 
+def generate_service_id():
+    return "SERV_" + generate_id(8)
+
 
 import bcrypt
 
