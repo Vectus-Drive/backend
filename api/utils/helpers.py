@@ -5,8 +5,9 @@ from ..models import Token
 from ..database import db
 from bcrypt import hashpw, checkpw
 from functools import wraps
-from flask import jsonify
+from flask import jsonify, request
 from pydantic import ValidationError
+from ..utils.http_status_codes import *
 
 def add_token_to_database(token):
     """
@@ -121,23 +122,47 @@ def validate_response(model):
         return wrapper
     return decorator
 
-def validate_request(model):
+def validate_request(request_model):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            request, status_code = func(*args, **kwargs)
+            data = request.get_json()
+
+            if not data:
+                return jsonify({
+                    "status": "error",
+                    "message": "Invalid or missing JSON body"
+                }), HTTP_400_BAD_REQUEST
 
             try:
-                model.parse_obj(request)
+                request_model.parse_obj(data)
             except ValidationError as e:
-                # Log validation error and return a 500 error
+                return jsonify({
+                    "status": "error",
+                    "message": "Request validation failed",
+                    "details": e.errors()
+                }), HTTP_400_BAD_REQUEST 
+            
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
+
+def validate_response(response_model):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            response_data, status_code = func(*args, **kwargs)
+            try:
+                response_model.parse_obj(response_data)
+            except ValidationError as e:
                 return jsonify({
                     "status": "error",
                     "message": "Response validation failed",
                     "details": e.errors()
                 }), 500
 
-            return jsonify(request), status_code
+            return jsonify(response_data), status_code
         return wrapper
     return decorator
+
 

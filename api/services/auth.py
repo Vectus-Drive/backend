@@ -2,7 +2,7 @@ from flask import Blueprint, request, make_response
 from ..database import db
 from ..models import User, Customer, Employee
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity, get_jwt, set_access_cookies, set_refresh_cookies
-from ..utils.helpers import generate_user_id, add_token_to_database, hash_password, verify_password, is_token_revoked, revoke_token
+from ..utils.helpers import generate_user_id, add_token_to_database, hash_password, verify_password, is_token_revoked, revoke_token, validate_request, validate_response
 from ..utils.http_status_codes import *
 from pydantic import ValidationError
 from ..schemas import UserCreate, UserResponse
@@ -11,22 +11,17 @@ auth_bp = Blueprint("auth", __name__, url_prefix="/api/v1/auth")
 
 
 @auth_bp.post("/register")
+@validate_request(request_model=UserCreate)
+@validate_response(response_model=UserResponse)
 def register_user():
-    try:
-        data = request.get_json()
-        user_data = UserCreate.model_validate(data)
-    except ValidationError as e:
-        return {
-            "status": "error",
-            "message": "Invalid input",
-            "data": e.errors()[0]
-        }, HTTP_400_BAD_REQUEST
-
+    data = request.get_json()
     username = data["username"]
     role = data["role"]
 
     # Check if user already exists
-    if db.session.query(User).filter_by(username=username).first():
+    user_ = db.session.query(User).filter_by(username=username).first()
+    
+    if user_:
         return {
             "status": "error",
             "message": "User already registered",
@@ -36,21 +31,21 @@ def register_user():
     user_id = generate_user_id()
 
     # Create the base user
-    hashed_pw = hash_password(user_data.password)
+    hashed_pw = hash_password(data["password"])
     user = User(u_id=user_id, username=username, password=hashed_pw, role=role)
 
     # Role-specific creation
     common_fields = {
-        "customer_id" if role == "CUSTOMER" else "employee_id": user_id,
-        "name": user_data.name,
-        "nic": user_data.nic,
-        "email": user_data.email,
-        "address": user_data.address,
-        "image": user_data.image,
-        "telephone_no": user_data.telephone_no,
+        "customer_id" if role == "customer" else "employee_id": user_id,
+        "name": data["name"],
+        "nic": data["nic"],
+        "email": data["email"],
+        "address": data["address"],
+        "image": data["image"],
+        "telephone_no": data["telephone_no"],
     }
 
-    if role == "CUSTOMER":
+    if role == "customer":
         db.session.add_all([user, Customer(**common_fields)])
     else:
         db.session.add_all([user, Employee(**common_fields)])
@@ -65,22 +60,17 @@ def register_user():
             "data": str(e)
         }, HTTP_500_INTERNAL_SERVER_ERROR
 
-    data["user_id"] = user_id
-    del data["password"]
 
-    try:
-        response = UserResponse.model_validate(data)
-    except ValidationError as e:
-        return {
-            "status": "error",
-            "message": "Invalid output formatting",
-            "data": e.errors()[0]
-        }, HTTP_400_BAD_REQUEST
+    resp_data = {
+        "user_id": user_id,
+        "username": data["username"],
+        "role": role
+    }
 
     return {
         "status": "success",
         "message": "User created successfully",
-        "data": response.model_dump()
+        "data": resp_data
     }, HTTP_201_CREATED
 
 

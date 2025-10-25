@@ -8,7 +8,7 @@ class User(db.Model):
     u_id = db.Column(db.String(36), primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.String(20), nullable=False, default="CUSTOMER")  # admin, employee, customer
+    role = db.Column(db.String(20), nullable=False, default="customer")  # admin, employee, customer
 
     customer = db.relationship("Customer", backref="user", uselist=False, cascade="all, delete")
     employee = db.relationship("Employee", backref="user", uselist=False, cascade="all, delete")

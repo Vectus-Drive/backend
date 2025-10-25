@@ -1,16 +1,12 @@
 from pydantic import BaseModel, EmailStr, ConfigDict
-from typing import Optional, Literal
+from typing import Optional, Literal, Union, List
 from datetime import datetime
 from enum import Enum
 
-class Role(Enum):
-    CUSTOMER = "CUSTOMER"
-    EMPLOYEE = "EMPLOYEE"
-    ADMIN = "ADMIN"
-    
-class Transaction(Enum):
-    CREDIT = "CREDIT"
-    DEBIT = "DEBIT" 
+# ------------------- RESPONSE SCHEMAS -------------------
+class Response(BaseModel):
+    status: Literal["error", "success"]
+    message: str
 
 # ------------------- USER SCHEMAS -------------------
 class UserBase(BaseModel):
@@ -29,23 +25,26 @@ class UserCreate(UserBase):
     password: str
     image: Optional[str]
 
-class UserResponse(UserBase):
+class UserData(BaseModel):
     user_id: str
+    username: str
+    role: Literal["customer", "employee"] = "customer"
 
+class UserResponse(Response):
+    data: UserData | None
+    
 # # ------------------- USER SCHEMAS -------------------
-# class UserBase(BaseModel):
-#     username: str
-#     role: Optional[str] = "customer"
+class UserBase(BaseModel):
+    username: str
+    role: Optional[str] = "customer"
 
 
 # class UserCreate(UserBase):
 #     password: str
 #     pass
 
-# class UserResponse(UserBase):
-#     u_id: str
-#     class Config:
-#         form_attributes = True
+class UserResponse(UserBase):
+    u_id: str
 
 
 # ------------------- CUSTOMER SCHEMAS -------------------
@@ -53,23 +52,27 @@ class CustomerBase(BaseModel):
     name: str
     nic: str
     email: EmailStr
-    image: Optional[str] = None
+    image: Optional[str]
     address: Optional[str] = None
     telephone_no: Optional[str] = None
 
 class CustomerCreate(CustomerBase):
-    image: Optional[str]
     pass
 
-class CustomerResponse(CustomerBase):
-    customer_id: str
+class CustomerData(CustomerBase):
+    user: UserResponse
+
+class CustomerResponse(Response):
+    data: CustomerData
+
+class CustomerResponseList(Response):
+    data: List[CustomerData]
 
 # ------------------- EMPLOYEE SCHEMAS -------------------
 class EmployeeBase(BaseModel):
     name: str
     nic: str
     email: EmailStr
-    image: Optional[str] = None
     address: Optional[str] = None
     telephone_no: Optional[str] = None
 
