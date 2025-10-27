@@ -1,5 +1,5 @@
 import random, string
-from datetime import datetime
+from datetime import datetime, timezone
 from flask_jwt_extended import decode_token
 from ..models import Token
 from ..database import db
@@ -39,7 +39,7 @@ def revoke_token(token_jti, user_id):
     if not token:
         raise Exception(f"Could not find token {token_jti}")
 
-    token.revoked_at = datetime.utcnow()
+    token.revoked_at = datetime.now(timezone.utc)
     db.session.commit()
 
 

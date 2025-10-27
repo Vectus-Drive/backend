@@ -9,6 +9,8 @@ from flask_jwt_extended import (
     get_jwt,
     set_access_cookies,
     set_refresh_cookies,
+    unset_refresh_cookies,
+    unset_access_cookies
 )
 from ..utils.helpers import (
     generate_user_id,
@@ -201,3 +203,20 @@ def delete_user(id):
         }, HTTP_500_INTERNAL_SERVER_ERROR
 
     return {}, HTTP_204_NO_CONTENT
+
+
+@auth_bp.post("/logout")
+@jwt_required(refresh=True)
+def logout_user():
+    jwt_data = get_jwt()
+    user_id = get_jwt_identity()
+    jti = jwt_data.get("jti")
+    
+    revoke_token(jti, user_id)
+
+    resp = make_response(
+        {"status": "success", "message": "Logout successful", "data": None}
+    )
+    unset_access_cookies(resp)
+    unset_refresh_cookies(resp)
+    return resp, HTTP_200_OK
