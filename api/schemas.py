@@ -95,6 +95,7 @@ class ServiceUpdate(ServiceBase):
 
 class ServiceData(ServiceBase):
     service_id: str
+    service_date: datetime
 
 class ServiceResponse(Response):
     data: ServiceData | List[ServiceData] | str | None
@@ -120,25 +121,23 @@ class ServiceResponse(Response):
 #         form_attributes = True
 
 
-# # ------------------- REVIEW SCHEMAS -------------------
-# class ReviewBase(BaseModel):
-#     customer_id: int
-#     car_id: int
-#     stars: int
-#     topic: Optional[str] = None
-#     description: Optional[str] = None
+# ------------------- REVIEW SCHEMAS -------------------
+class ReviewBase(BaseModel):
+    stars: int
+    topic: Optional[str] = None
+    description: Optional[str] = None
 
+class ReviewCreate(ReviewBase):
+    customer_id: str
 
-# class ReviewCreate(ReviewBase):
-#     pass
+class ReviewUpdate(ReviewBase):
+    pass
 
+class ReviewData(ReviewBase):
+    review_id: str
 
-# class ReviewResponse(ReviewBase):
-#     review_id: int
-#     created_at: datetime
-
-#     class Config:
-#         form_attributes = True
+class ReviewResponse(Response):
+    data: ReviewData | List[ReviewData] | None | str
 
 
 # # ------------------- TOKEN SCHEMAS -------------------
@@ -166,7 +165,7 @@ class CarBase(BaseModel):
     make: str
     model: str
     seats: int
-    fuel: str
+    fuel: Literal["diesel", "petrol"] = "diesel"
     transmission: Literal["automatic", "manual"] = "automatic"
     doors: int
     description: str
@@ -196,17 +195,19 @@ class CarResponse(Response):
 
 # ------------------- BOOKING SCHEMAS -------------------
 class BookingBase(BaseModel):
-    customer_id: int
-    car_id: int
     time_period: int
+    status: Literal["pending", "booked", "canceled"] = "pending"
     fine: Optional[float] = 0.0
 
-
 class BookingCreate(BookingBase):
+    customer_id: str
+    car_id: str
+
+class BookingUpdate(BookingBase):
     pass
 
+class BookingData(BaseModel):
+    booking_id: str
 
-class BookingResponse(BookingBase):
-    booking_id: int
-    booked_at: datetime
-    returned_at: Optional[datetime] = None
+class BookingResponse(Response):
+    data: BookingData | List[BookingData] | None | str
