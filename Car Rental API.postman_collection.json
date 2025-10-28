@@ -1,0 +1,808 @@
+{
+	"info": {
+		"_postman_id": "d0c18e75-79a1-4949-8861-eddb1ccd78df",
+		"name": "Car Rental API",
+		"description": "# 🚀 Get started here\n\nThis template guides you through CRUD operations (GET, POST, PUT, DELETE), variables, and tests.\n\n## 🔖 **How to use this template**\n\n#### **Step 1: Send requests**\n\nRESTful APIs allow you to perform CRUD operations using the POST, GET, PUT, and DELETE HTTP methods.\n\nThis collection contains each of these [request](https://learning.postman.com/docs/sending-requests/requests/) types. Open each request and click \"Send\" to see what happens.\n\n#### **Step 2: View responses**\n\nObserve the response tab for status code (200 OK), response time, and size.\n\n#### **Step 3: Send new Body data**\n\nUpdate or add new data in \"Body\" in the POST request. Typically, Body data is also used in PUT request.\n\n```\n{\n    \"name\": \"Add your name in the body\"\n}\n\n ```\n\n#### **Step 4: Update the variable**\n\nVariables enable you to store and reuse values in Postman. We have created a [variable](https://learning.postman.com/docs/sending-requests/variables/) called `base_url` with the sample request [https://postman-api-learner.glitch.me](https://postman-api-learner.glitch.me). Replace it with your API endpoint to customize this collection.\n\n#### **Step 5: Add tests in the \"Scripts\" tab**\n\nAdding tests to your requests can help you confirm that your API is working as expected. You can write test scripts in JavaScript and view the output in the \"Test Results\" tab.\n\n<img src=\"https://content.pstmn.io/fa30ea0a-373d-4545-a668-e7b283cca343/aW1hZ2UucG5n\" alt=\"\" height=\"1530\" width=\"2162\">\n\n## 💪 Pro tips\n\n- Use folders to group related requests and organize the collection.\n    \n- Add more [scripts](https://learning.postman.com/docs/writing-scripts/intro-to-scripts/) to verify if the API works as expected and execute workflows.\n    \n\n## 💡Related templates\n\n[API testing basics](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=e9a37a28-055b-49cd-8c7e-97494a21eb54&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)  \n[API documentation](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=e9c28f47-1253-44af-a2f3-20dce4da1f18&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)  \n[Authorization methods](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=31a9a6ed-4cdf-4ced-984c-d12c9aec1c27&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30326264"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "  {\r\n    \"username\": \"s_perera45\",\r\n    \"name\": \"Samantha Perera\",\r\n    \"nic\": \"993456782V\",\r\n    \"email\": \"samantha.perera45@example.com\",\r\n    \"password\": \"Samantha@456\",\r\n    \"image\": null,\r\n    \"telephone_no\": \"0723456789\",\r\n    \"address\": \"45 Oak Avenue\",\r\n    \"role\": \"employee\"\r\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-CSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth//token/refresh",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"",
+								"token",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"username\": \"s_perera45\",\n    \"password\": \"Samantha@456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Auth",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"username\": \"amila\",\n    \"email\": \"abc@gmail.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/me",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"username\": \"emma_w\",\n    \"password\": \"Secure#456\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/delete/USER_M2LTG1RYJTFWG0A8",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"delete",
+								"USER_M2LTG1RYJTFWG0A8"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Customer",
+			"item": [
+				{
+					"name": "Get All Customers",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"emma_w\",\r\n    \"name\": \"Emma Watson\",\r\n    \"nic\": \"982345678V\",\r\n    \"email\": \"emma.watson@example.com\",\r\n    \"password\": \"Secure#456\",\r\n    \"image\": null,\r\n    \"address\": \"45 Park Avenue\",\r\n    \"telephone_no\": \"0771234567\",\r\n    \"role\": \"EMPLOYEE\"\r\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/customers",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"customers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Customer By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/customers/USER_G2RLM2K5E1LRS1E8",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"customers",
+								"USER_G2RLM2K5E1LRS1E8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Customer",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": " {\r\n    \"name\": \"Logan Davis\",\r\n    \"nic\": \"999012345V\",\r\n    \"email\": \"logan.davis23@example.com\",\r\n    \"telephone_no\": \"0759012345\",\r\n    \"image\": \"\",\r\n    \"address\": \"15 Elm Street\"\r\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/customers/USER_G2RLM2K5E1LRS1E8",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"customers",
+								"USER_G2RLM2K5E1LRS1E8"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Employee",
+			"item": [
+				{
+					"name": "Get All Employees",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/employees/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"employees",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Employee By ID",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n        \"address\": \"45 Park Avenue\",\r\n        \"email\": \"emma.watson@example.com\",\r\n        \"employee_id\": \"USER_Y3ZUTNQ8RUPYDAK6\",\r\n        \"image\": null,\r\n        \"name\": \"Emma Watson\",\r\n        \"nic\": \"982345678V\",\r\n        \"telephone_no\": \"0771234567\"\r\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/employees/USER_RCS6DCDHK8BQG7W8",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"employees",
+								"USER_RCS6DCDHK8BQG7W8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Employee",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n        \"address\": \"45 Park Avenue\",\r\n        \"email\": \"emma.watson@example.com\",\r\n        \"employee_id\": \"USER_Y3ZUTNQ8RUPYDAK6\",\r\n        \"image\": null,\r\n        \"name\": \"Emma Watson\",\r\n        \"nic\": \"982345678V\",\r\n        \"telephone_no\": \"0771234567\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/employees/USER_RCS6DCDHK8BQG7W8",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"employees",
+								"USER_RCS6DCDHK8BQG7W8"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Car",
+			"item": [
+				{
+					"name": "Get All Cars",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/cars",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cars"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Car By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/cars/CAR_TPPDXURZC1K1K1Q8S2W9",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cars",
+								"CAR_TPPDXURZC1K1K1Q8S2W9"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Car",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"license_no\": \"ADD3455\",\r\n    \"make\": \"Toyota\",\r\n    \"model\": \"Corolla\",\r\n    \"image\": \"Toyota - Corolla.jpg\",\r\n    \"seats\": 4,\r\n    \"fuel\": \"Petrol\",\r\n    \"transmission\": \"automatic\",\r\n    \"doors\": 4,\r\n    \"description\": \"A reliable and fuel-efficient sedan, perfect for city driving and long trips.\",\r\n    \"features\": [\r\n        \"Air Conditioning\",\r\n        \"Bluetooth\",\r\n        \"Backup Camera\",\r\n        \"Wifi\"\r\n    ],\r\n    \"price_per_day\": 50,\r\n    \"availability_status\": true,\r\n    \"condition\": \"Excellent\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/cars/CAR_TPPDXURZC1K1K1Q8S2W9",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cars",
+								"CAR_TPPDXURZC1K1K1Q8S2W9"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Car",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/cars/CAR_M9K3TOFGPHA6JCA2K2C0",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cars",
+								"CAR_M9K3TOFGPHA6JCA2K2C0"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Car",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"license_no\": \"ADD3455\",\r\n    \"make\": \"Toyota\",\r\n    \"model\": \"Corolla\",\r\n    \"image\": \"Toyota - Corolla.jpg\",\r\n    \"seats\": 4,\r\n    \"fuel\": \"Petrol\",\r\n    \"transmission\": \"automatic\",\r\n    \"doors\": 4,\r\n    \"description\": \"A reliable and fuel-efficient sedan, perfect for city driving and long trips.\",\r\n    \"features\": [\r\n        \"Air Conditioning\",\r\n        \"Bluetooth\",\r\n        \"Backup Camera\"\r\n    ],\r\n    \"price_per_day\": 50,\r\n    \"availability_status\": true,\r\n    \"condition\": \"Excellent\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/cars",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cars"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Booking",
+			"item": [
+				{
+					"name": "Get All Bookings",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "Get Booking By ID",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "Update Booking",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n        \"address\": \"45 Park Avenue\",\r\n        \"email\": \"emma.watson@example.com\",\r\n        \"employee_id\": \"USER_Y3ZUTNQ8RUPYDAK6\",\r\n        \"image\": null,\r\n        \"name\": \"Emma Watson\",\r\n        \"nic\": \"982345678V\",\r\n        \"telephone_no\": \"0771234567\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": ""
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Booking",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": ""
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Car",
+					"request": {
+						"method": "POST",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Transaction",
+			"item": [
+				{
+					"name": "Get All Transactions",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "Get Transaction By ID",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "Update Transaction",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n        \"address\": \"45 Park Avenue\",\r\n        \"email\": \"emma.watson@example.com\",\r\n        \"employee_id\": \"USER_Y3ZUTNQ8RUPYDAK6\",\r\n        \"image\": null,\r\n        \"name\": \"Emma Watson\",\r\n        \"nic\": \"982345678V\",\r\n        \"telephone_no\": \"0771234567\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/employees/USER_Y3ZUTNQ8RUPYDAK6",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"employees",
+								"USER_Y3ZUTNQ8RUPYDAK6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Transaction",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/employees/USER_Y3ZUTNQ8RUPYDAK6",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"employees",
+								"USER_Y3ZUTNQ8RUPYDAK6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Car",
+					"request": {
+						"method": "POST",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Service",
+			"item": [
+				{
+					"name": "Get All Services",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/services",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"services"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Service By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/services/SERV_Q8TUK3XHY3W0BGG8",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"services",
+								"SERV_Q8TUK3XHY3W0BGG8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Service",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"details\": \"Repaired The Engine twice\",\r\n    \"transaction_amount\": 30000\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/services/SERV_Q8TUK3XHY3W0BGG8",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"services",
+								"SERV_Q8TUK3XHY3W0BGG8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Service",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/services/SERV_JKJMVILEM4C3S8C0",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"services",
+								"SERV_JKJMVILEM4C3S8C0"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Service",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"car_id\": \"CAR_TPPDXURZC1K1K1Q8S2W9\",\r\n    \"details\": \"Repaired Engine\",\r\n    \"transaction_amount\": 20000\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/services",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"services"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Review",
+			"item": [
+				{
+					"name": "Get All Reviews",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "Get Review By ID",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "Update Review",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n        \"address\": \"45 Park Avenue\",\r\n        \"email\": \"emma.watson@example.com\",\r\n        \"employee_id\": \"USER_Y3ZUTNQ8RUPYDAK6\",\r\n        \"image\": null,\r\n        \"name\": \"Emma Watson\",\r\n        \"nic\": \"982345678V\",\r\n        \"telephone_no\": \"0771234567\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/employees/USER_Y3ZUTNQ8RUPYDAK6",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"employees",
+								"USER_Y3ZUTNQ8RUPYDAK6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Review",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/employees/USER_Y3ZUTNQ8RUPYDAK6",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"employees",
+								"USER_Y3ZUTNQ8RUPYDAK6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Car",
+					"request": {
+						"method": "POST",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://template.postman-echo.com"
+		},
+		{
+			"key": "csrf_token",
+			"value": ""
+		}
+	]
+}

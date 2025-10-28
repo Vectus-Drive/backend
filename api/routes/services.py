@@ -41,7 +41,7 @@ def add_service():
             "data": str(e),
         }, HTTP_500_INTERNAL_SERVER_ERROR
 
-    resp_data = data
+    resp_data = service.as_dict()
 
     return {
         "status": "success",
@@ -58,7 +58,7 @@ def get_services():
     if not services:
         return {
             "status": "error",
-            "message": "No Services registered",
+            "message": "No Services found",
             "data": [],
         }, HTTP_404_NOT_FOUND
 
@@ -80,7 +80,7 @@ def get_service(id):
     if not service:
         return {
             "status": "error",
-            "message": "Service does not exist",
+            "message": "Service not found",
             "data": None,
         }, HTTP_404_NOT_FOUND
 
@@ -127,7 +127,6 @@ def update_service(id):
     service_query = db.session.query(Service).filter_by(service_id=id)
 
     service = service_query.first()
-    car_id = service.car.car_id
 
     if not service:
         return {
@@ -136,6 +135,7 @@ def update_service(id):
             "data": None,
         }, HTTP_404_NOT_FOUND
     
+    car_id = service.car.car_id
     data = request.get_json()
     data["car_id"] = car_id
     updated_service = service_query.update(data, synchronize_session=False)

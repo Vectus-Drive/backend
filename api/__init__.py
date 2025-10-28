@@ -5,7 +5,7 @@ from flask_jwt_extended import JWTManager
 from flask_swagger_ui import get_swaggerui_blueprint
 from flask_cors import CORS
 from .utils.http_status_codes import *
-# from .models import User, Booking, Car, Customer, Review,  Token, Transaction, Service
+from flask_migrate import Migrate
 from .services.auth import auth_bp
 from .routes.cars import car_bp
 from .routes.customers import customer_bp
@@ -21,12 +21,15 @@ def create_app():
    app, 
    origins=["http://localhost:5173"],
    supports_credentials=True,
-   # allow_headers=["Content-Type", "Authorization", "X-CSRF-TOKEN"]
-   
 )
     app.config.from_object(Config)
 
     db.init_app(app)
+
+    migrate = Migrate()
+    migrate.init_app(app, db)
+
+   # TODO: remember to remove db.create_all() once all migrations are stable
     with app.app_context():
       db.create_all()
 
