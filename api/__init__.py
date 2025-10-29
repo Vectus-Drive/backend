@@ -14,6 +14,7 @@ from .routes.bookings import booking_bp
 from .routes.transactions import transaction_bp
 from .routes.services import service_bp
 from .routes.employees import employee_bp
+from .routes.notifications import notification_bp
 
 def create_app():
     app = Flask(__name__)
@@ -56,6 +57,7 @@ def create_app():
     app.register_blueprint(booking_bp)
     app.register_blueprint(customer_bp)
     app.register_blueprint(employee_bp)
+    app.register_blueprint(notification_bp)
 
     
     @app.errorhandler(HTTP_404_NOT_FOUND)

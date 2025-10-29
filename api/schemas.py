@@ -95,31 +95,30 @@ class ServiceUpdate(ServiceBase):
 
 class ServiceData(ServiceBase):
     service_id: str
-    service_date: datetime
+    service_date: Optional[datetime] = None
 
 class ServiceResponse(Response):
     data: ServiceData | List[ServiceData] | str | None
 
 
 # # ------------------- TRANSACTION SCHEMAS -------------------
-# class TransactionBase(BaseModel):
-#     transaction_type: str  # "credit" or "debit"
-#     customer_id: int
-#     car_id: int
-#     booking_id: Optional[int] = None
+class TransactionBase(BaseModel):
+    transaction_amount: Optional[float] = 0.0
+    transaction_type: Literal["credit", "debit"] = "debit"
+    
+class TransactionCreate(TransactionBase):
+    booking_id: str
 
+class TransactionUpdate(TransactionBase):
+    pass
 
-# class TransactionCreate(TransactionBase):
-#     pass
+class TransactionData(TransactionBase):
+    transaction_id: str
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
-
-# class TransactionResponse(TransactionBase):
-#     transaction_id: int
-#     date: datetime
-
-#     class Config:
-#         form_attributes = True
-
+class TransactionResponse(Response):
+    data: TransactionData | List[TransactionData] | None | str
 
 # ------------------- REVIEW SCHEMAS -------------------
 class ReviewBase(BaseModel):
@@ -135,6 +134,8 @@ class ReviewUpdate(ReviewBase):
 
 class ReviewData(ReviewBase):
     review_id: str
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
 class ReviewResponse(Response):
     data: ReviewData | List[ReviewData] | None | str
@@ -206,8 +207,26 @@ class BookingCreate(BookingBase):
 class BookingUpdate(BookingBase):
     pass
 
-class BookingData(BaseModel):
+class BookingData(BookingBase):
     booking_id: str
 
 class BookingResponse(Response):
     data: BookingData | List[BookingData] | None | str
+
+# ------------------- NOTIFICATION SCHEMAS -------------------
+class NotificationBase(BaseModel):
+    text: str
+
+class NotificationCreate(NotificationBase):
+    u_id: str
+
+class NotificationUpdate(NotificationBase):
+    pass
+
+class NotificationData(BaseModel):
+    notification_id: str
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+class NotificationResponse(Response):
+    data: NotificationData | List[NotificationData] | None | str

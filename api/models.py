@@ -20,6 +20,10 @@ class User(db.Model):
     employee = db.relationship(
         "Employee", backref="user", uselist=False, cascade="all, delete"
     )
+    notifications = db.relationship(
+           "Notification", backref="user", lazy=True, cascade="all, delete"
+    )
+
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -104,7 +108,22 @@ class Car(db.Model):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
-# ------------------- Features -------------------
+# ------------------- NOTIFICATIONS -------------------
+class Notification(db.Model):
+    __tablename__ = "notifications"
+
+    notification_id = db.Column(db.String(36), primary_key=True)
+    u_id = db.Column(
+        db.String(36),
+        db.ForeignKey("users.u_id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    text = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now)
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 # ------------------- BOOKINGS -------------------
@@ -138,7 +157,7 @@ class Service(db.Model):
     car_id = db.Column(
         db.String(36), db.ForeignKey("cars.car_id", ondelete="CASCADE"), nullable=False
     )
-    transaction_amount = db.Column(db.Float, nullable=False)
+    transaction_amount = db.Column(db.Float, default=0.0)
     service_date = db.Column(db.DateTime, default=datetime.now)
     details = db.Column(db.Text, nullable=False)
 
@@ -166,6 +185,8 @@ class Transaction(db.Model):
         db.ForeignKey("bookings.booking_id", ondelete="SET NULL"),
         nullable=True,
     )
+    transaction_type = db.Column(db.String(20), nullable=False, default="debit")
+
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
