@@ -89,6 +89,9 @@ def generate_review_id():
 def generate_service_id():
     return "SERV_" + generate_id(8)
 
+def generate_notification_id():
+    return "NT_" + generate_id(8)
+
 
 import bcrypt
 

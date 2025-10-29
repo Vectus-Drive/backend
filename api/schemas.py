@@ -206,8 +206,24 @@ class BookingCreate(BookingBase):
 class BookingUpdate(BookingBase):
     pass
 
-class BookingData(BaseModel):
+class BookingData(BookingBase):
     booking_id: str
 
 class BookingResponse(Response):
     data: BookingData | List[BookingData] | None | str
+
+# ------------------- NOTIFICATION SCHEMAS -------------------
+class NotificationBase(BaseModel):
+    text: str
+
+class NotificationCreate(NotificationBase):
+    u_id: str
+
+class NotificationUpdate(NotificationBase):
+    pass
+
+class NotificationData(BaseModel):
+    notification_id: str
+
+class NotificationResponse(Response):
+    data: NotificationData | List[NotificationData] | None | str

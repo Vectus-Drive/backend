@@ -20,6 +20,10 @@ class User(db.Model):
     employee = db.relationship(
         "Employee", backref="user", uselist=False, cascade="all, delete"
     )
+    notifications = db.relationship(
+           "Notification", backref="user", lazy=True, cascade="all, delete"
+    )
+
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -104,7 +108,20 @@ class Car(db.Model):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
-# ------------------- Features -------------------
+# ------------------- NOTIFICATIONS -------------------
+class Notification(db.Model):
+    __tablename__ = "notifications"
+
+    notification_id = db.Column(db.String(36), primary_key=True)
+    u_id = db.Column(
+        db.String(36),
+        db.ForeignKey("users.u_id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    text = db.Column(db.Text, nullable=False)
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 # ------------------- BOOKINGS -------------------
