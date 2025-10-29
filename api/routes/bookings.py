@@ -26,7 +26,7 @@ def add_booking():
         }, HTTP_404_NOT_FOUND
     
     car = Car.query.filter_by(car_id=car_id).first()
-    if not customer:
+    if not car:
         return {
             "status": "error",
             "message": "Car does not exist",
