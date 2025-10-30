@@ -68,12 +68,16 @@ def get_reviews():
     }, HTTP_404_NOT_FOUND
 
     def handleReview(review):
+        customer_name = review.customer.name
+        # print(review.customer)
+        review = review.as_dict()
+        review["customer_name"] = customer_name
         if customer_id:
             del review["customer_id"]
         return review
 
 
-    resp_data = [handleReview(review.as_dict()) for review in reviews]
+    resp_data = [handleReview(review) for review in reviews]
 
     return {
         "status": "success",
@@ -93,8 +97,11 @@ def get_review(id):
             "message": "Review does not exist",
             "data": None,
         }, HTTP_404_NOT_FOUND
-
-    resp_data = review.as_dict()
+    
+    customer_name = review.customer.name
+    review = review.as_dict()
+    review["customer_name"] = customer_name
+    resp_data = review
 
     return {
         "status": "success",
