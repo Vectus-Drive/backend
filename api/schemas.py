@@ -137,8 +137,11 @@ class ReviewData(ReviewBase):
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
+class ReviewDataWithCustomerName(ReviewData):
+    customer_name: str
+
 class ReviewResponse(Response):
-    data: ReviewData | List[ReviewData] | None | str
+    data: ReviewDataWithCustomerName | List[ReviewDataWithCustomerName] | ReviewData | List[ReviewData] | None | str
 
 
 # # ------------------- TOKEN SCHEMAS -------------------

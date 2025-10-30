@@ -3,7 +3,7 @@ from ..database import db
 from ..models import Service, Car
 from flask_jwt_extended import jwt_required
 from ..utils.http_status_codes import *
-from ..utils.helpers import generate_service_id, validate_request, validate_response
+from ..utils.helpers import generate_service_id, validate_request, validate_response, role_based
 from ..schemas import ServiceCreate, ServiceResponse, ServiceUpdate
 
 service_bp = Blueprint("service", __name__, url_prefix="/api/v1/services")
@@ -11,6 +11,7 @@ service_bp = Blueprint("service", __name__, url_prefix="/api/v1/services")
 
 @service_bp.post("/")
 @jwt_required()
+@role_based()
 @validate_request(request_model=ServiceCreate)
 @validate_response(response_model=ServiceResponse)
 def add_service():

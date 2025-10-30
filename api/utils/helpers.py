@@ -164,10 +164,28 @@ def validate_response(response_model):
                 return jsonify({
                     "status": "error",
                     "message": "Response validation failed",
-                    "details": e.errors()
+                    "data": e.errors()
                 }), 500
 
             return jsonify(response_data), status_code
+        return wrapper
+    return decorator
+
+def role_based():
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            access_token = request.cookies.get('access_token_cookie')
+            decoded_token = decode_token(access_token)
+            role = decoded_token["role"]
+            if role != "employee":
+                return jsonify({
+                    "status": "error",
+                    "message": "Unauthorized to perform this action",
+                    "data": None
+                }), 401
+
+            return func(*args, **kwargs)
         return wrapper
     return decorator
 
