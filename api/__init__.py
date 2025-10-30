@@ -21,6 +21,7 @@ def create_app():
     CORS(
    app, 
    origins=["http://localhost:5173"],
+   methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
    supports_credentials=True,
 )
     app.config.from_object(Config)
@@ -47,6 +48,9 @@ def create_app():
          "app_name": "RPS"
       }
    )
+
+   #* Disable strict slashes globally to enforce cors properly
+    app.url_map.strict_slashes = False
     
     app.register_blueprint(swaggerui_blueprint)
     app.register_blueprint(auth_bp)
