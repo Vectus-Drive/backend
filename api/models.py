@@ -182,7 +182,7 @@ class Transaction(db.Model):
     )
     booking_id = db.Column(
         db.String(36),
-        db.ForeignKey("bookings.booking_id", ondelete="SET NULL"),
+        db.ForeignKey("bookings.booking_id", ondelete="CASCADE"),
         nullable=True,
     )
     transaction_type = db.Column(db.String(20), nullable=False, default="debit")
