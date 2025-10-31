@@ -10,7 +10,7 @@ from flask_jwt_extended import (
     set_access_cookies,
     set_refresh_cookies,
     unset_refresh_cookies,
-    unset_access_cookies,
+    unset_access_cookies
 )
 from ..utils.helpers import (
     generate_user_id,
@@ -21,10 +21,9 @@ from ..utils.helpers import (
     revoke_token,
     validate_request,
     validate_response,
-    save_image_locally,
-    delete_image,
 )
 from ..utils.http_status_codes import *
+from pydantic import ValidationError
 from ..schemas import UserCreate, UserResponse
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/api/v1/auth")
@@ -54,18 +53,6 @@ def register_user():
     hashed_pw = hash_password(data["password"])
     user = User(u_id=user_id, username=username, password=hashed_pw, role=role)
 
-    try:
-        save_image_locally(_id=user_id, source_path=data["image"])
-    except Exception as e:
-        db.session.rollback()
-        return {
-            "status": "error",
-            "message": "Internal server error",
-            "data": str(e),
-        }, HTTP_500_INTERNAL_SERVER_ERROR
-
-    image_, ext_ = data["image"].rsplit(".", 1)
-
     # Role-specific creation
     common_fields = {
         "customer_id" if role == "customer" else "employee_id": user_id,
@@ -73,7 +60,7 @@ def register_user():
         "nic": data["nic"],
         "email": data["email"],
         "address": data["address"],
-        "image": f"{user_id}.{ext_}",
+        "image": data["image"],
         "telephone_no": data["telephone_no"],
     }
 
@@ -203,21 +190,10 @@ def delete_user(id):
             "data": None,
         }, HTTP_404_NOT_FOUND
 
-    filename = user.customer.image if user.role == "USER" else user.employee.image
     db.session.delete(user)
 
     try:
         db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        return {
-            "status": "error",
-            "message": "Internal server error",
-            "data": str(e),
-        }, HTTP_500_INTERNAL_SERVER_ERROR
-
-    try:
-        delete_image(filename=filename)
     except Exception as e:
         db.session.rollback()
         return {
@@ -235,7 +211,7 @@ def logout_user():
     jwt_data = get_jwt()
     user_id = get_jwt_identity()
     jti = jwt_data.get("jti")
-
+    
     revoke_token(jti, user_id)
 
     resp = make_response(
