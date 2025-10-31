@@ -1,7 +1,6 @@
 # folders
 __pycache__
 env
-uploads
 
 # files
 .flaskenv

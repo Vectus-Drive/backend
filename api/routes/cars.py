@@ -3,8 +3,9 @@ from ..database import db
 from ..models import Car
 from flask_jwt_extended import jwt_required
 from ..utils.http_status_codes import *
-from ..utils.helpers import validate_request, validate_response, generate_car_id, save_image_locally, delete_image
+from ..utils.helpers import validate_request, validate_response, generate_car_id
 from ..schemas import CarCreate, CarResponse
+from pydantic import ValidationError
 
 car_bp = Blueprint("car", __name__, url_prefix="/api/v1/cars")
 
@@ -20,20 +21,6 @@ def create_car():
 
     car_id = generate_car_id()
     data["car_id"] = car_id
-
-    try:
-        save_image_locally(_id=car_id, source_path=data["image"])
-    except Exception as e:
-        db.session.rollback()
-        return {
-            "status": "error",
-            "message": "Internal server error",
-            "data": str(e),
-        }, HTTP_500_INTERNAL_SERVER_ERROR
-
-
-    image_, ext_ = data["image"].rsplit(".", 1)
-    data["image"] = f"{car_id}.{ext_}"
     
     car = Car(**data)
     db.session.add(car)
@@ -127,7 +114,6 @@ def delete_car(id):
             "data": None
         }, HTTP_404_NOT_FOUND
 
-    filename = car.image
     db.session.delete(car)
 
     try:
@@ -139,17 +125,6 @@ def delete_car(id):
             "message": "Internal server error",
             "data": str(e),
         }, HTTP_500_INTERNAL_SERVER_ERROR
-    
-    try:
-        delete_image(filename=filename)
-    except Exception as e:
-        db.session.rollback()
-        return {
-            "status": "error",
-            "message": "Internal server error",
-            "data": str(e),
-        }, HTTP_500_INTERNAL_SERVER_ERROR
-
 
     return {}, HTTP_204_NO_CONTENT
 
