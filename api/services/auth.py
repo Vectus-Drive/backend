@@ -53,6 +53,7 @@ def register_user():
     hashed_pw = hash_password(data["password"])
     user = User(u_id=user_id, username=username, password=hashed_pw, role=role)
 
+    image_ = data["image"] if "image" in data else None
     # Role-specific creation
     common_fields = {
         "customer_id" if role == "customer" else "employee_id": user_id,
@@ -60,7 +61,7 @@ def register_user():
         "nic": data["nic"],
         "email": data["email"],
         "address": data["address"],
-        "image": data["image"],
+        "image": image_,
         "telephone_no": data["telephone_no"],
     }
 
