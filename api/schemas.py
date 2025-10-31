@@ -22,18 +22,15 @@ class UserBase(BaseModel):
     address: str
     telephone_no: str
     role: Literal["customer", "employee"] = "customer"
-
+    image: Optional[str] = None
 
 class UserCreate(UserBase):
     password: str
-    image: Optional[str] = None
-
 
 class UserData(BaseModel):
     u_id: str
     username: str
     role: Literal["customer", "employee"] = "customer"
-
 
 class UserResponse(Response):
     data: UserData | None
@@ -122,7 +119,7 @@ class TransactionResponse(Response):
 
 # ------------------- REVIEW SCHEMAS -------------------
 class ReviewBase(BaseModel):
-    stars: int
+    stars: Optional[int] = 1
     topic: Optional[str] = None
     description: Optional[str] = None
 
