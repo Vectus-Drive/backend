@@ -48,7 +48,7 @@ def get_customers():
 def get_customer(id):
     user = db.session.query(User).filter_by(u_id=id).first()
 
-    if not user:
+    if not user or user.role != "customer":
         return {
             "status": "error",
             "message": "Customer does not exist",
@@ -85,11 +85,12 @@ def update_customer(id):
         }, HTTP_404_NOT_FOUND
 
     data = request.get_json()
+    image_ = data["image"] if "image" in data else None
 
     customer_ = user.customer
     customer_.address = data["address"]
     customer_.email = data["email"]
-    customer_.image = data["image"]
+    customer_.image = image_
     customer_.name = data["name"]
     customer_.nic = data["nic"]
     customer_.telephone_no = data["telephone_no"]

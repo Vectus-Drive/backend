@@ -71,23 +71,35 @@ def create_app():
 
     @app.post('/api/v1/upload-image/')
     def upload_image():
-      
-      if 'image' not in request.files:
-        return {"error": "No image part"}, HTTP_400_BAD_REQUEST
-      
-      file = request.files['image']
-      if file.filename == '':
-        return {"error": "No selected file"}, HTTP_400_BAD_REQUEST
+      try:
+         uid = request.args.get("uid")
 
-      uid = uuid.uuid4().hex
-      _, ext =  file.filename.rsplit(".", 1)
-      filename = f"{uid}.{ext}" 
-      
-      # Upload to Azure Blob Storage
-      blob_client = blob_service_client.get_blob_client(container=container_name, blob=filename)
-      blob_client.upload_blob(file, overwrite=True)
+         if 'image' not in request.files:
+            return {"error": "No image part"}, HTTP_400_BAD_REQUEST
+         
+         file = request.files['image']
+         if file.filename == '':
+            return {"error": "No selected file"}, HTTP_400_BAD_REQUEST
+         
+         if not uid:
+            uid = uuid.uuid4().hex
 
-      return {"image_url": blob_client.url}, HTTP_201_CREATED
+         _, ext =  file.filename.rsplit(".", 1)
+         filename = f"{uid}.{ext}" 
+         
+         # Upload to Azure Blob Storage
+         blob_client = blob_service_client.get_blob_client(container=container_name, blob=filename)
+         blob_client.upload_blob(file, overwrite=True)
+
+         return {"image_url": blob_client.url}, HTTP_201_CREATED
+      
+      except Exception as e:
+         return {
+            "status": "error",
+            "message": "Failed to upload image",
+            "data": None
+        }, HTTP_500_INTERNAL_SERVER_ERROR
+
 
     @app.errorhandler(HTTP_404_NOT_FOUND)
     def handle_404(e):
