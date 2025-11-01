@@ -1,4 +1,4 @@
-import random, string
+import random, string, re
 from datetime import datetime, timezone
 from flask_jwt_extended import decode_token
 from ..models import Token
@@ -190,3 +190,7 @@ def role_based():
     return decorator
 
 
+BCRYPT_PATTERN = re.compile(r"^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$")
+
+def is_bcrypt_hash(password: str) -> bool:
+    return bool(BCRYPT_PATTERN.match(password))

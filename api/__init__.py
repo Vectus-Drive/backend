@@ -1,7 +1,7 @@
 from flask import Flask, request
 from .config import Config
 from .database import db
-from flask_jwt_extended import JWTManager, jwt_required
+from flask_jwt_extended import JWTManager
 from flask_swagger_ui import get_swaggerui_blueprint
 from flask_cors import CORS
 from .utils.http_status_codes import *
@@ -16,7 +16,7 @@ from .routes.services import service_bp
 from .routes.employees import employee_bp
 from .routes.notifications import notification_bp
 from azure.storage.blob import BlobServiceClient
-import os
+import os, uuid
 
 def create_app():
     app = Flask(__name__)
@@ -69,8 +69,7 @@ def create_app():
     app.register_blueprint(employee_bp)
     app.register_blueprint(notification_bp)
 
-    @app.post('/api/v1/upload-image')
-    @jwt_required()
+    @app.post('/api/v1/upload-image/')
     def upload_image():
       
       if 'image' not in request.files:
@@ -80,13 +79,16 @@ def create_app():
       if file.filename == '':
         return {"error": "No selected file"}, HTTP_400_BAD_REQUEST
 
+      uid = uuid.uuid4().hex
+      _, ext =  file.filename.rsplit(".", 1)
+      filename = f"{uid}.{ext}" 
+      
       # Upload to Azure Blob Storage
-      blob_client = blob_service_client.get_blob_client(container=container_name, blob=file.filename)
+      blob_client = blob_service_client.get_blob_client(container=container_name, blob=filename)
       blob_client.upload_blob(file, overwrite=True)
 
       return {"image_url": blob_client.url}, HTTP_201_CREATED
-    
-    
+
     @app.errorhandler(HTTP_404_NOT_FOUND)
     def handle_404(e):
        return {

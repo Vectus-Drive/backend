@@ -139,6 +139,59 @@
 					"response": []
 				},
 				{
+					"name": "Update User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"Nigga_Chadder\"\n    // \"password\": \"alpha126\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/update/USER_HJNHS9G4M8RFU2XS",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"update",
+								"USER_HJNHS9G4M8RFU2XS"
+							]
+						},
+						"description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+					},
+					"response": []
+				},
+				{
 					"name": "Get Auth",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
@@ -181,6 +234,68 @@
 								"auth",
 								"delete",
 								"USER_M2LTG1RYJTFWG0A8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Generate OTP",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"username\": \"n_de_silva33\",\n    \"password\": \"Nadeesha@789\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/generate-otp?email=amilasandeepa349@gmail.com",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"generate-otp"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "amilasandeepa349@gmail.com"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Validate OTP",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"username\": \"n_de_silva33\",\n    \"password\": \"Nadeesha@789\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/validate-otp?otp=666680",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"validate-otp"
+							],
+							"query": [
+								{
+									"key": "otp",
+									"value": "666680"
+								}
 							]
 						}
 					},
@@ -368,13 +483,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/cars/CAR_Y1I5TTU4BYS4C4HKLKO5",
+							"raw": "{{base_url}}/cars/CAR_E1I3M2U0FQO3Q7C2I6Y7",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"cars",
-								"CAR_Y1I5TTU4BYS4C4HKLKO5"
+								"CAR_E1I3M2U0FQO3Q7C2I6Y7"
 							]
 						}
 					},
@@ -891,7 +1006,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"description\": \"This is a demo update\",\r\n    \"stars\": 3,\r\n    \"topic\": \"Noize\"\r\n}",
+							"raw": "{\r\n    \"stars\": 3\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -899,13 +1014,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/reviews/REV_ZNC6LNS6I3Q4S4HO",
+							"raw": "{{base_url}}/reviews/REV_O0TEHTHDDNXJY9JB",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"reviews",
-								"REV_ZNC6LNS6I3Q4S4HO"
+								"REV_O0TEHTHDDNXJY9JB"
 							]
 						}
 					},
@@ -1075,6 +1190,39 @@
 							],
 							"path": [
 								"notifications"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Uploads",
+			"item": [
+				{
+					"name": "image",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/C:/Users/Amila/Pictures/lec.jpeg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/upload-image/jdksjldskja",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"upload-image",
+								"jdksjldskja"
 							]
 						}
 					},
