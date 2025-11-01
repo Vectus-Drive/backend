@@ -27,13 +27,17 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str
 
+class UserUpdate(BaseModel):
+    password: Optional[str] = None
+    username: Optional[str] = None
+
 class UserData(BaseModel):
     u_id: str
     username: str
-    role: Literal["customer", "employee"] = "customer"
+    role: Optional[Literal["customer", "employee"]] = "customer"
 
 class UserResponse(Response):
-    data: UserData | None
+    data: UserData | None | str
 
 
 # ------------------- CUSTOMER SCHEMAS -------------------
@@ -41,7 +45,7 @@ class CustomerBase(BaseModel):
     name: str
     nic: str
     email: EmailStr
-    image: Optional[str]
+    image: Optional[str] = None
     address: Optional[str] = None
     telephone_no: Optional[str] = None
 
@@ -62,7 +66,7 @@ class EmployeeBase(BaseModel):
     name: str
     nic: str
     email: EmailStr
-    image: Optional[str]
+    image: Optional[str] = None
     address: Optional[str] = None
     telephone_no: Optional[str] = None
 

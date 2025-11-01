@@ -1,6 +1,7 @@
 from flask import Blueprint, request, make_response
 from ..database import db
 from ..models import User, Customer, Employee
+from sqlalchemy import or_
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -21,13 +22,15 @@ from ..utils.helpers import (
     revoke_token,
     validate_request,
     validate_response,
+    is_bcrypt_hash
 )
 from ..utils.http_status_codes import *
 from pydantic import ValidationError
-from ..schemas import UserCreate, UserResponse
+from ..schemas import UserCreate, UserResponse, UserUpdate
+from ..utils.smtp_server import OTP
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/api/v1/auth")
-
+otp_handler = OTP()
 
 @auth_bp.post("/register")
 @validate_request(request_model=UserCreate)
@@ -35,7 +38,9 @@ auth_bp = Blueprint("auth", __name__, url_prefix="/api/v1/auth")
 def register_user():
     data = request.get_json()
     username = data["username"]
-    role = data["role"]
+    email = data["email"]
+    nic = data["nic"]
+    role = data["role"] if "role" in data else "customer"
 
     # Check if user already exists
     user_ = db.session.query(User).filter_by(username=username).first()
@@ -46,7 +51,21 @@ def register_user():
             "message": "User already registered",
             "data": None,
         }, HTTP_403_FORBIDDEN
+    
+    existing_customer = db.session.query(Customer).filter(
+        or_(Customer.email == email, Customer.nic == nic)
+    ).first()
+    existing_employee = db.session.query(Employee).filter(
+        or_(Employee.email == email, Employee.nic == nic)
+    ).first()
 
+    if existing_customer or existing_employee:
+        return {
+            "status": "error",
+            "message": "User already registered",
+            "data": None,
+        }, HTTP_403_FORBIDDEN
+    
     user_id = generate_user_id()
 
     # Create the base user
@@ -221,3 +240,119 @@ def logout_user():
     unset_access_cookies(resp)
     unset_refresh_cookies(resp)
     return resp, HTTP_200_OK
+
+
+@auth_bp.put("/update/<id>")
+@jwt_required()
+@validate_request(request_model=UserUpdate)
+@validate_response(response_model=UserResponse)
+def update_user(id):
+    user_query = db.session.query(User).filter_by(u_id=id)
+
+    user = user_query.first()
+
+    if not user:
+        return {
+            "status": "error",
+            "message": "User does not exist",
+            "data": None,
+        }, HTTP_404_NOT_FOUND
+    
+    data = request.get_json()
+
+    
+    if "password" in data:
+        if not is_bcrypt_hash(data["password"]):
+            data["password"] = hash_password(data["password"])
+    else:
+        data["password"] = user.password
+    
+
+    if "username" in data:
+        if data["username"] == user.username:
+            data["username"] = user.username
+        else:
+            pass
+    
+    data["u_id"] = user.u_id
+    print(data)
+    updated_user = user_query.update(data, synchronize_session=False)
+
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return {
+            "status": "error",
+            "message": "Internal server error",
+            "data": str(e),
+        }, HTTP_500_INTERNAL_SERVER_ERROR
+
+    return {
+        "status": "success",
+        "message": "User updated successfully",
+        "data": None,
+    }, HTTP_200_OK
+
+
+
+# ------------------ GENERATE NEW OTP ------------------
+@auth_bp.get("/generate-otp")
+@jwt_required()
+def regenerate_otp():
+    try:
+        email = request.args.get("email")
+
+        if not email:
+            return {
+                "status": "error",
+                "message": "Email parameter is required."
+            }, HTTP_400_BAD_REQUEST
+
+        otp = otp_handler.generate_otp()
+        otp_handler.send_otp(email)
+
+        return {
+            "status": "success",
+            "message": "New OTP generated successfully.",
+            "data": otp
+        }, HTTP_201_CREATED
+
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"Failed to generate OTP: {str(e)}"
+        }, HTTP_500_INTERNAL_SERVER_ERROR
+
+
+# ------------------ VALIDATE OTP ------------------
+@auth_bp.get("/validate-otp")
+@jwt_required()
+def validate_otp():
+    try:
+        otp = request.args.get("otp")
+
+        if not otp:
+            return {
+                "status": "error",
+                "message": "OTP parameter is required."
+            }, HTTP_400_BAD_REQUEST
+
+        if otp_handler.validate_otp(otp):
+            return {
+                "status": "success",
+                "message": "OTP validated successfully.",
+                "data": None
+            }, HTTP_200_OK
+
+        return {
+            "status": "error",
+            "message": "Invalid OTP. Please try again."
+        }, HTTP_400_BAD_REQUEST
+
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"Error validating OTP: {str(e)}"
+        }, HTTP_500_INTERNAL_SERVER_ERROR
+
