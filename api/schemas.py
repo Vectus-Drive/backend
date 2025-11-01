@@ -203,7 +203,7 @@ class CarResponse(Response):
 
 # ------------------- BOOKING SCHEMAS -------------------
 class BookingBase(BaseModel):
-    time_period: int
+    time_period: Optional[int] = 1
     status: Literal["pending", "booked", "canceled"] = "pending"
     fine: Optional[float] = 0.0
 
