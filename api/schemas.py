@@ -183,6 +183,9 @@ class CarBase(BaseModel):
 class CarCreate(CarBase):
     pass
 
+class CarBooking(CarBase):
+    pass
+
 class CarData(CarBase):
     car_id: str
     services: ServiceData | List[ServiceData] | None
@@ -213,6 +216,7 @@ class BookingUpdate(BookingBase):
 
 class BookingData(BookingBase):
     booking_id: str
+    car: CarBooking
 
 class BookingResponse(Response):
     data: BookingData | List[BookingData] | None | str

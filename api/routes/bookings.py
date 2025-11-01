@@ -81,13 +81,17 @@ def get_bookings():
         }, HTTP_404_NOT_FOUND
 
     def handle_booking(booking):
+        car = booking.car.as_dict()
+        booking = booking.as_dict()
+
         if customer_id:
             del booking["customer_id"]
-        if car_id:
-            del booking["car_id"]
+
+        del car["car_id"]
+        booking["car"] = car
         return booking
 
-    resp_data = [handle_booking(booking.as_dict()) for booking in bookings]
+    resp_data = [handle_booking(booking) for booking in bookings]
 
     return {
         "status": "success",
@@ -109,8 +113,11 @@ def get_booking(id):
             "data": None,
         }, HTTP_404_NOT_FOUND
 
+    car = booking.car.as_dict()
+    del car["car_id"]
     resp_data = booking.as_dict()
-
+    resp_data["car"] = car
+    
     return {
         "status": "success",
         "message": "Booking retrieved successfully",

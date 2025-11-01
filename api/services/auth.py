@@ -299,14 +299,15 @@ def update_user(id):
 # ------------------ GENERATE NEW OTP ------------------
 @auth_bp.get("/generate-otp")
 @jwt_required()
-def regenerate_otp():
+def generate_otp():
     try:
         email = request.args.get("email")
 
         if not email:
             return {
                 "status": "error",
-                "message": "Email parameter is required."
+                "message": "Email parameter is required.",
+                "data": None
             }, HTTP_400_BAD_REQUEST
 
         otp = otp_handler.generate_otp()
@@ -315,13 +316,14 @@ def regenerate_otp():
         return {
             "status": "success",
             "message": "New OTP generated successfully.",
-            "data": otp
+            "data": None
         }, HTTP_201_CREATED
 
     except Exception as e:
         return {
             "status": "error",
-            "message": f"Failed to generate OTP: {str(e)}"
+            "message": f"Failed to generate OTP: {str(e)}",
+            "data": None
         }, HTTP_500_INTERNAL_SERVER_ERROR
 
 
@@ -335,7 +337,8 @@ def validate_otp():
         if not otp:
             return {
                 "status": "error",
-                "message": "OTP parameter is required."
+                "message": "OTP parameter is required.",
+                "data": None
             }, HTTP_400_BAD_REQUEST
 
         if otp_handler.validate_otp(otp):
@@ -347,12 +350,14 @@ def validate_otp():
 
         return {
             "status": "error",
-            "message": "Invalid OTP. Please try again."
+            "message": "Invalid OTP. Please try again.",
+            "data": None
         }, HTTP_400_BAD_REQUEST
 
     except Exception as e:
         return {
             "status": "error",
-            "message": f"Error validating OTP: {str(e)}"
+            "message": f"Error validating OTP: {str(e)}",
+            "data": None
         }, HTTP_500_INTERNAL_SERVER_ERROR
 

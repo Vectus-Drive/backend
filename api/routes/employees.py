@@ -75,7 +75,7 @@ def get_employee(id):
 def update_employee(id):
     user = db.session.query(User).filter_by(u_id=id).first()
 
-    if user is None or user.role != "employee" or user.employee is None:
+    if not user or user.role != "employee":
         return {
             "status": "error",
             "message": "Employee does not exist",
@@ -83,11 +83,12 @@ def update_employee(id):
         }, HTTP_404_NOT_FOUND
 
     data = request.get_json()
+    image_ = data["image"] if "image" in data else None
 
     employee_ = user.employee
     employee_.address = data["address"]
     employee_.email = data["email"]
-    employee_.image = data["image"]
+    employee_.image = image_
     employee_.name = data["name"]
     employee_.nic = data["nic"]
     employee_.telephone_no = data["telephone_no"]

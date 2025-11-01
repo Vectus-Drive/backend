@@ -18,9 +18,18 @@ def updateService(service):
 @validate_response(response_model=CarResponse)
 def create_car():
     data = request.get_json()
-
     car_id = generate_car_id()
     data["car_id"] = car_id
+
+    car = db.session.query(Car).filter_by(license_no=data["license_no"]).first()
+
+    if car:
+        return {
+            "status": "error",
+            "message": "Car already exist",
+            "data": None,
+        }, HTTP_404_NOT_FOUND
+    
     
     car = Car(**data)
     db.session.add(car)
