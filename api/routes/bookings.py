@@ -166,7 +166,9 @@ def update_booking(id):
         }, HTTP_404_NOT_FOUND
     
     customer_id = booking.customer.customer_id
-    car_id = booking.car.car_id
+    car = booking.car.as_dict()
+    car_id = car["car_id"]
+
     data = request.get_json()
     data["customer_id"] = customer_id
     data["car_id"] = car_id
@@ -182,12 +184,14 @@ def update_booking(id):
             "data": str(e),
         }, HTTP_500_INTERNAL_SERVER_ERROR
 
+    del car["car_id"]
     data["booking_id"] = id
+    data["car"] = car
     resp_data = data
 
     return {
         "status": "success",
-        "message": "Review updated successfully",
+        "message": "Booking updated successfully",
         "data": resp_data,
     }, HTTP_200_OK
 
