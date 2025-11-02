@@ -216,6 +216,7 @@ class BookingUpdate(BookingBase):
     pass
 
 class BookingData(BookingBase):
+    customer_name: str
     booking_id: str
     car: CarBooking
 
