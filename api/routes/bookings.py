@@ -81,6 +81,7 @@ def get_bookings():
         }, HTTP_404_NOT_FOUND
 
     def handle_booking(booking):
+        customer_name = booking.customer.name
         car = booking.car.as_dict()
         booking = booking.as_dict()
 
@@ -88,6 +89,7 @@ def get_bookings():
             del booking["customer_id"]
 
         del car["car_id"]
+        booking["customer_name"] = customer_name
         booking["car"] = car
         return booking
 
@@ -114,8 +116,10 @@ def get_booking(id):
         }, HTTP_404_NOT_FOUND
 
     car = booking.car.as_dict()
+    customer_name = booking.customer.name
     del car["car_id"]
     resp_data = booking.as_dict()
+    resp_data["customer_name"] = customer_name
     resp_data["car"] = car
     
     return {
