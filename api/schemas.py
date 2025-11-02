@@ -206,6 +206,7 @@ class BookingBase(BaseModel):
     time_period: Optional[int] = 1
     status: Literal["pending", "booked", "canceled"] = "pending"
     fine: Optional[float] = 0.0
+    total: Optional[float] = 0.0
 
 class BookingCreate(BookingBase):
     customer_id: str

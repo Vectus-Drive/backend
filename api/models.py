@@ -144,6 +144,7 @@ class Booking(db.Model):
     returned_at = db.Column(db.DateTime)
     status = db.Column(db.String(20), nullable=False, default="pending")
     fine = db.Column(db.Float, default=0.0)
+    total = db.Column(db.Float, default=0.0)
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
