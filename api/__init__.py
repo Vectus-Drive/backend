@@ -34,8 +34,8 @@ def create_app():
     migrate.init_app(app, db)
 
    # TODO: remember to remove db.create_all() once all migrations are stable
-    with app.app_context():
-      db.create_all()
+   #  with app.app_context():
+   #    db.create_all()
 
     jwt = JWTManager()
     jwt.init_app(app)

@@ -12,6 +12,8 @@ booking_bp = Blueprint("booking", __name__, url_prefix="/api/v1/bookings")
 
 @booking_bp.post("/")
 @jwt_required()
+@validate_request(request_model=BookingCreate)
+@validate_response(response_model=BookingResponse)
 def add_booking():
     data = request.get_json()
     customer_id = data["customer_id"]
@@ -170,6 +172,7 @@ def update_booking(id):
         }, HTTP_404_NOT_FOUND
     
     customer_id = booking.customer.customer_id
+    customer_name = booking.customer.name
     car = booking.car.as_dict()
     car_id = car["car_id"]
 
@@ -190,6 +193,7 @@ def update_booking(id):
 
     del car["car_id"]
     data["booking_id"] = id
+    data["customer_name"] = customer_name
     data["car"] = car
     resp_data = data
 
