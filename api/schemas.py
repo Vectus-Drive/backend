@@ -216,12 +216,18 @@ class BookingUpdate(BookingBase):
     pass
 
 class BookingData(BookingBase):
+    car_id: str
     customer_name: str
     booking_id: str
     car: CarBooking
 
+class BookingDataCreate(BookingBase):
+    booking_id: str
+    car_id: str
+    customer_id: str
+
 class BookingResponse(Response):
-    data: BookingData | List[BookingData] | None | str
+    data: BookingDataCreate | BookingData | List[BookingData] | None | str
 
 # ------------------- NOTIFICATION SCHEMAS -------------------
 class NotificationBase(BaseModel):
